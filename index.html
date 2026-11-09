@@ -126,6 +126,40 @@
           if (AudioContext) this.ctx = new AudioContext();
         }
       }
+      playLaser() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(1200, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.15);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      }
+      playBoom() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(90, now);
+        osc.frequency.exponentialRampToValueAtTime(25, now + 0.35);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      }
       playCorrect() {
         if (!this.enabled) return;
         this.init();
@@ -458,17 +492,29 @@
 
       <!-- Simulator Selector Tabs -->
       <div class="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-800 text-xs font-mono">
-        <button onclick="app.showSim('tcp')" id="simtab-tcp" class="sim-tab px-4 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 flex items-center gap-2 whitespace-nowrap">
-          🤝 TCP 3-Way Handshake
+        <button onclick="app.showSim('tcp')" id="simtab-tcp" class="sim-tab px-3.5 py-2 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 flex items-center gap-1.5 whitespace-nowrap">
+          🤝 TCP Handshake
         </button>
-        <button onclick="app.showSim('subnet')" id="simtab-subnet" class="sim-tab px-4 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center gap-2 whitespace-nowrap">
+        <button onclick="app.showSim('wireshark')" id="simtab-wireshark" class="sim-tab px-3.5 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap">
+          🦈 Wireshark Dissector
+        </button>
+        <button onclick="app.showSim('csmacd')" id="simtab-csmacd" class="sim-tab px-3.5 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap">
+          💥 CSMA/CD Ethernet Arena
+        </button>
+        <button onclick="app.showSim('packetbuilder')" id="simtab-packetbuilder" class="sim-tab px-3.5 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap">
+          🧱 Encapsulation Puzzle
+        </button>
+        <button onclick="app.showSim('dns')" id="simtab-dns" class="sim-tab px-3.5 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap">
+          🌲 DNS Resolver Map
+        </button>
+        <button onclick="app.showSim('subnet')" id="simtab-subnet" class="sim-tab px-3.5 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap">
           🔢 Subnet & CIDR Lab
         </button>
-        <button onclick="app.showSim('cisco')" id="simtab-cisco" class="sim-tab px-4 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center gap-2 whitespace-nowrap">
+        <button onclick="app.showSim('cisco')" id="simtab-cisco" class="sim-tab px-3.5 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap">
           💻 Cisco CLI Terminal
         </button>
-        <button onclick="app.showSim('socket')" id="simtab-socket" class="sim-tab px-4 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center gap-2 whitespace-nowrap">
-          🔌 Socket API Life-Cycle
+        <button onclick="app.showSim('socket')" id="simtab-socket" class="sim-tab px-3.5 py-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap">
+          🔌 Berkeley Sockets C API
         </button>
       </div>
 
@@ -605,6 +651,281 @@
         </form>
       </div>
 
+      <!-- SIM NEW 1: LIVE WIRESHARK PACKET DISSECTOR -->
+      <div id="sim-panel-wireshark" class="hidden glass-card p-6 rounded-2xl space-y-6">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h3 class="text-lg font-bold text-sky-400 flex items-center gap-2">
+              🦈 Wireshark Live Packet Dissector (Experiments 2, 3, 4 & 10)
+            </h3>
+            <p class="text-xs text-slate-400 font-mono">Inspect real captured network frames across Ethernet, IP, TCP/UDP, and Application layers with Live Filter Bar & Hex Dump view.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono text-slate-400">Sample Capture:</span>
+            <select id="ws-scenario" onchange="simulators.loadWiresharkScenario()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono text-xs outline-none">
+              <option value="http">Exp 2: HTTP GET & 200 OK</option>
+              <option value="dns">Exp 4: DNS Query & UDP 53 Answer</option>
+              <option value="smtp">Exp 3: SMTP HELO / MAIL FROM</option>
+              <option value="arp">Exp 1: ARP Broadcast & Unicast Reply</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="flex items-center gap-2 bg-slate-950 p-2 rounded-xl border border-slate-800 font-mono text-xs">
+          <span class="text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/30">Display Filter</span>
+          <input type="text" id="ws-filter-input" oninput="simulators.filterWireshark()" placeholder="Apply display filter (e.g. 'http', 'dns', 'tcp.port == 80', 'arp')..." class="flex-1 bg-transparent border-none text-white outline-none placeholder-slate-600">
+          <span class="text-slate-500 text-[10px]" id="ws-packet-count">Showing 4 packets</span>
+        </div>
+
+        <!-- Packet List Pane (Wireshark Top Pane) -->
+        <div class="rounded-xl border border-slate-800 overflow-hidden bg-slate-950 font-mono text-xs">
+          <div class="grid grid-cols-12 bg-slate-900/90 text-slate-400 px-3 py-2 border-b border-slate-800 font-bold text-[11px]">
+            <div class="col-span-1">No.</div>
+            <div class="col-span-2">Time</div>
+            <div class="col-span-3">Source</div>
+            <div class="col-span-3">Destination</div>
+            <div class="col-span-1">Protocol</div>
+            <div class="col-span-2">Info</div>
+          </div>
+          <div id="ws-packet-table" class="divide-y divide-slate-800/60 max-h-48 overflow-y-auto">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Wireshark Dissection Tree & Raw Hex Inspector (Bottom Pane) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 font-mono text-xs">
+          <!-- Tree Pane -->
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2 max-h-72 overflow-y-auto">
+            <div class="text-xs font-bold text-sky-400 border-b border-slate-800 pb-1.5 flex items-center justify-between">
+              <span>🔬 Packet Details Tree</span>
+              <span class="text-[10px] text-slate-500 font-normal">Click header to expand</span>
+            </div>
+            <div id="ws-tree" class="space-y-1.5">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Hex & ASCII Dump -->
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2 max-h-72 overflow-y-auto">
+            <div class="text-xs font-bold text-emerald-400 border-b border-slate-800 pb-1.5 flex items-center justify-between">
+              <span>💾 Raw Hex & ASCII Dump</span>
+              <span class="text-[10px] text-slate-500 font-normal">Byte offset view</span>
+            </div>
+            <pre id="ws-hex" class="text-[11px] leading-relaxed text-slate-400 overflow-x-auto select-all">
+Select a packet above to inspect raw bytes...
+            </pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIM NEW 2: CSMA/CD ETHERNET COLLISION ARENA -->
+      <div id="sim-panel-csmacd" class="hidden glass-card p-6 rounded-2xl space-y-6">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h3 class="text-lg font-bold text-rose-400 flex items-center gap-2">
+              💥 CSMA/CD Collision & Exponential Backoff Arena (Data-Link Theory Q7-Q8)
+            </h3>
+            <p class="text-xs text-slate-400 font-mono">
+              Simulate 1-persistent Carrier Sense Multiple Access with Collision Detection, Jam Signal broadcast, and Binary Exponential Backoff algorithm [0 .. 2^k - 1] * 512 bit times.
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="simulators.csmacdSingleTransmit()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg">
+              🚀 Transmit Host A
+            </button>
+            <button onclick="simulators.csmacdTriggerCollision()" class="px-3.5 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold text-xs shadow-lg">
+              💥 Trigger Simultaneous Collision (A vs B)
+            </button>
+            <button onclick="simulators.csmacdReset()" class="text-xs text-slate-400 hover:text-white px-2 py-1 bg-slate-800 rounded">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Bus Topology Visualizer Canvas -->
+        <div class="relative bg-slate-950 rounded-2xl p-6 border border-slate-800 min-h-[260px] flex flex-col justify-between overflow-hidden">
+          
+          <!-- Shared Coaxial Bus -->
+          <div class="relative my-auto py-8">
+            <div class="h-3 w-full bg-slate-800 rounded-full border border-slate-700 relative overflow-hidden">
+              <div id="csmacd-bus-glow" class="absolute inset-0 bg-cyan-500/20 transition duration-300"></div>
+            </div>
+            <div class="absolute left-2 -top-1 text-[10px] font-mono text-slate-500">10BASE5 Shared Coaxial Bus (50 Ohm Terminator)</div>
+            <div class="absolute right-2 -top-1 text-[10px] font-mono text-slate-500">Max Cable Length: 2500m (5 segments)</div>
+
+            <!-- Traveling Signal A -->
+            <div id="csmacd-signal-a" class="hidden absolute top-7 w-8 h-8 rounded-full bg-cyan-400 blur-sm transition-all duration-700 pointer-events-none" style="left: 10%;"></div>
+            <!-- Traveling Signal B -->
+            <div id="csmacd-signal-b" class="hidden absolute top-7 w-8 h-8 rounded-full bg-amber-400 blur-sm transition-all duration-700 pointer-events-none" style="right: 10%;"></div>
+            <!-- Collision Explosion Zone -->
+            <div id="csmacd-boom" class="hidden absolute top-3 left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-none z-30">
+              <span class="text-4xl animate-ping">💥</span>
+              <span class="absolute text-xs font-mono font-bold text-rose-300 bg-rose-950/90 border border-rose-500 px-2 py-1 rounded shadow-xl mt-12 whitespace-nowrap">
+                COLLISION DETECTED! JAM SIGNAL (32-48 bits) TRANSMITTED!
+              </span>
+            </div>
+          </div>
+
+          <!-- Connected Workstations -->
+          <div class="grid grid-cols-4 gap-3 pt-4 border-t border-slate-800/80">
+            <!-- Node A -->
+            <div id="csmacd-node-a" class="p-3 rounded-xl bg-slate-900 border border-cyan-500/40 text-center space-y-1">
+              <div class="text-xl">💻 Host A</div>
+              <div class="text-[10px] font-mono text-cyan-300">00:1A:2B:3C:4D:01</div>
+              <div id="csmacd-state-a" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">IDLE (Listening)</div>
+              <div class="text-[10px] font-mono text-amber-400" id="csmacd-backoff-a">k=0, wait: 0 µs</div>
+            </div>
+            <!-- Node B -->
+            <div id="csmacd-node-b" class="p-3 rounded-xl bg-slate-900 border border-amber-500/40 text-center space-y-1">
+              <div class="text-xl">🖥️ Host B</div>
+              <div class="text-[10px] font-mono text-amber-300">00:1A:2B:3C:4D:02</div>
+              <div id="csmacd-state-b" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">IDLE (Listening)</div>
+              <div class="text-[10px] font-mono text-amber-400" id="csmacd-backoff-b">k=0, wait: 0 µs</div>
+            </div>
+            <!-- Node C -->
+            <div class="p-3 rounded-xl bg-slate-900/50 border border-slate-800 text-center space-y-1 opacity-70">
+              <div class="text-xl">🖨️ Printer C</div>
+              <div class="text-[10px] font-mono text-slate-400">00:1A:2B:3C:4D:03</div>
+              <div class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">PASSIVE</div>
+            </div>
+            <!-- Node D -->
+            <div class="p-3 rounded-xl bg-slate-900/50 border border-slate-800 text-center space-y-1 opacity-70">
+              <div class="text-xl">🗄️ File Server D</div>
+              <div class="text-[10px] font-mono text-slate-400">00:1A:2B:3C:4D:04</div>
+              <div class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">PASSIVE</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Viva Concept Callout -->
+        <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs font-mono text-slate-300 flex items-start gap-3">
+          <span class="text-rose-400 text-lg">💡</span>
+          <div>
+            <strong class="text-white">Why is minimum Ethernet frame size 64 bytes?</strong>
+            <span> To ensure a sender detects collisions before it finishes transmitting the frame! At 10 Mbps, Round Trip Propagation Delay (RTT) across max network diameter (2500m + 4 repeaters) is ~51.2 µs. 10 Mbps * 51.2 µs = 512 bits = <strong class="text-cyan-300">64 bytes</strong>. (Page 7, Q13).</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIM NEW 3: DRAG & DROP ENCAPSULATION PUZZLE -->
+      <div id="sim-panel-packetbuilder" class="hidden glass-card p-6 rounded-2xl space-y-6">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+              🧱 OSI / TCP-IP 5-Layer Encapsulation Puzzle
+            </h3>
+            <p class="text-xs text-slate-400 font-mono">
+              Build a complete network frame from User Application Payload down to the Physical wire! Drag or click headers into correct protocol stack order.
+            </p>
+          </div>
+          <div class="flex items-center gap-2 font-mono text-xs">
+            <span class="text-slate-400">Puzzle Progress:</span>
+            <span id="encap-score" class="font-bold text-amber-400">0 / 5 Layers Fixed</span>
+            <button onclick="simulators.resetEncap()" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">Reset</button>
+          </div>
+        </div>
+
+        <!-- Target Frame Construction Slot -->
+        <div class="space-y-2">
+          <div class="text-xs font-mono text-slate-400">Target Wire Frame (Physical bits left to right):</div>
+          <div id="encap-dropzone" class="p-4 rounded-xl bg-slate-950 border-2 border-dashed border-slate-700 flex flex-wrap items-center gap-2 min-h-[90px] transition">
+            <div id="encap-placeholder" class="text-slate-500 font-mono text-xs italic m-auto">
+              Select or click layer tokens below in correct outer-to-inner encapsulation order: [Ethernet MAC Header] ➔ [IP Header] ➔ [TCP Header] ➔ [HTTP Data] ➔ [Ethernet CRC]
+            </div>
+          </div>
+        </div>
+
+        <!-- Header Pieces Bank -->
+        <div class="space-y-2">
+          <div class="text-xs font-mono text-slate-400">Available Protocol Headers & Payloads:</div>
+          <div id="encap-tokens" class="flex flex-wrap items-center gap-3">
+            <!-- Tokens rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Feedback & Verification -->
+        <div id="encap-feedback" class="hidden p-3.5 rounded-xl text-xs font-mono"></div>
+      </div>
+
+      <!-- SIM NEW 4: INTERACTIVE DNS RECURSIVE RESOLUTION MAP -->
+      <div id="sim-panel-dns" class="hidden glass-card p-6 rounded-2xl space-y-6">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h3 class="text-lg font-bold text-teal-400 flex items-center gap-2">
+              🌲 DNS Recursive vs Iterative Query Hierarchy (Exp 4 & App Layer Q6)
+            </h3>
+            <p class="text-xs text-slate-400 font-mono">
+              Trace how domain names like <code class="text-teal-300">www.google.com</code> resolve from Local DNS Cache ➔ Root Servers ('.') ➔ TLD Servers ('.com') ➔ Authoritative Name Servers.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="text" id="dns-query-domain" value="www.scmsgroup.org" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono text-xs outline-none">
+            <button onclick="simulators.startDNSResolve()" class="px-3.5 py-1.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-lg">
+              🚀 Query DNS
+            </button>
+          </div>
+        </div>
+
+        <!-- Tree Nodes Visual Grid -->
+        <div class="relative bg-slate-950 rounded-2xl p-6 border border-slate-800 space-y-8 font-mono text-xs">
+          <!-- Level 1: Client Host & Local Resolver (Recursive) -->
+          <div class="flex justify-between items-center gap-4">
+            <div id="dns-node-client" class="p-3 rounded-xl bg-slate-900 border border-slate-700 w-44 text-center transition">
+              <div class="text-2xl">💻</div>
+              <div class="font-bold text-white text-xs">Client Host</div>
+              <div class="text-[10px] text-slate-400">Stub Resolver</div>
+            </div>
+
+            <!-- Animated Query Line -->
+            <div class="flex-1 text-center relative py-2">
+              <div id="dns-arrow-1" class="border-b-2 border-dashed border-slate-700 w-full transition"></div>
+              <span id="dns-label-1" class="text-[10px] text-slate-500">Recursive Query (Port 53 UDP)</span>
+            </div>
+
+            <div id="dns-node-local" class="p-3 rounded-xl bg-slate-900 border border-slate-700 w-48 text-center transition">
+              <div class="text-2xl">🏢</div>
+              <div class="font-bold text-teal-300 text-xs">Local ISP DNS</div>
+              <div class="text-[10px] text-slate-400">8.8.8.8 / 1.1.1.1</div>
+            </div>
+          </div>
+
+          <!-- Level 2: Hierarchy Iterative Queries -->
+          <div class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800">
+            <!-- Root DNS -->
+            <div id="dns-node-root" class="p-3 rounded-xl bg-slate-900 border border-slate-700 text-center space-y-1 transition">
+              <div class="text-xl">🌍</div>
+              <div class="font-bold text-indigo-300 text-xs">Root DNS Server</div>
+              <div class="text-[10px] text-slate-400">[a-m].root-servers.net</div>
+              <div class="text-[10px] text-teal-400" id="dns-res-root">Waiting...</div>
+            </div>
+
+            <!-- TLD DNS -->
+            <div id="dns-node-tld" class="p-3 rounded-xl bg-slate-900 border border-slate-700 text-center space-y-1 transition">
+              <div class="text-xl">🏛️</div>
+              <div class="font-bold text-purple-300 text-xs">TLD DNS Server</div>
+              <div class="text-[10px] text-slate-400">.com / .org Name Servers</div>
+              <div class="text-[10px] text-teal-400" id="dns-res-tld">Waiting...</div>
+            </div>
+
+            <!-- Authoritative DNS -->
+            <div id="dns-node-auth" class="p-3 rounded-xl bg-slate-900 border border-slate-700 text-center space-y-1 transition">
+              <div class="text-xl">🎯</div>
+              <div class="font-bold text-emerald-300 text-xs">Authoritative DNS</div>
+              <div class="text-[10px] text-slate-400">Holds final 'A' & 'AAAA' Record</div>
+              <div class="text-[10px] text-teal-400" id="dns-res-auth">Waiting...</div>
+            </div>
+          </div>
+
+          <!-- Status & Explanation Log -->
+          <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between text-xs">
+            <span id="dns-status-log" class="text-slate-300">Click 'Query DNS' to trace step-by-step resolution.</span>
+            <span class="text-[10px] text-teal-400 font-bold" id="dns-final-ip"></span>
+          </div>
+        </div>
+      </div>
+
       <!-- SIM 4: Socket API Lifecycle -->
       <div id="sim-panel-socket" class="hidden glass-card p-6 rounded-2xl space-y-6">
         <div>
@@ -739,6 +1060,8 @@
         this.renderHubModules(this.modules);
         this.renderCodex(this.questions);
         this.populateCodexDropdown();
+        simulators.initWireshark();
+        simulators.initEncap();
       },
 
       updateHUD() {
@@ -1018,7 +1341,7 @@
       /* Simulator Navigation */
       showSim(simId) {
         window.sound.playClick();
-        ['tcp', 'subnet', 'cisco', 'socket'].forEach(s => {
+        ['tcp', 'wireshark', 'cisco', 'subnet', 'csmacd', 'packetbuilder', 'dns', 'socket'].forEach(s => {
           const panel = document.getElementById(`sim-panel-${s}`);
           const tab = document.getElementById(`simtab-${s}`);
           if (panel) panel.classList.toggle('hidden', s !== simId);
@@ -1172,6 +1495,7 @@
         document.getElementById('tcp-step-name').innerText = 'Step 1: Client SYN';
       },
 
+      /* Subnet Calculator */
       calcSubnet() {
         window.sound.playClick();
         const ipStr = document.getElementById('subnet-ip').value.trim();
@@ -1183,7 +1507,6 @@
           return;
         }
 
-        // Convert to 32-bit int
         const ip32 = ((parts[0] << 24) >>> 0) + (parts[1] << 16) + (parts[2] << 8) + parts[3];
         const mask32 = cidr === 0 ? 0 : (~0 << (32 - cidr)) >>> 0;
         const net32 = (ip32 & mask32) >>> 0;
@@ -1205,8 +1528,8 @@
         document.getElementById('res-range').innerText = `${toIP(firstUsable)} - ${toIP(lastUsable).split('.')[3]}`;
       },
 
-      /* Cisco IOS CLI Engine */
-      ciscoMode: 'user', // user, privileged, config, config-if
+      /* Cisco CLI */
+      ciscoMode: 'user',
       ciscoHistory: [],
       execCisco(e) {
         e.preventDefault();
@@ -1285,6 +1608,462 @@
 
       clearCisco() {
         document.getElementById('cisco-history').innerHTML = '';
+      },
+
+      /* ======================================================== */
+      /* NEW SIMULATOR 1: WIRESHARK PACKET DISSECTOR ENGINE       */
+      /* ======================================================== */
+      wsPackets: [],
+      currentWsPacket: null,
+      initWireshark() {
+        this.loadWiresharkScenario();
+      },
+      loadWiresharkScenario() {
+        const scenario = document.getElementById('ws-scenario').value;
+        if (scenario === 'http') {
+          this.wsPackets = [
+            {
+              no: 1, time: '0.000000', src: '192.168.1.10', dst: '93.184.216.34', proto: 'TCP', length: 66,
+              info: '54321 → 80 [SYN] Seq=0 Win=64240 Len=0 MSS=1460',
+              tree: [
+                { layer: 'Frame 1: 66 bytes on wire (528 bits)', items: ['Encapsulation: Ethernet II (1)', 'Arrival Time: Nov 9, 2026', 'Frame Length: 66 bytes'] },
+                { layer: 'Ethernet II, Src: 00:1a:2b:3c:4d:01, Dst: 00:26:88:ef:90:12', items: ['Destination: Cisco_ef:90:12', 'Source: Intel_4d:01', 'Type: IPv4 (0x0800)'] },
+                { layer: 'Internet Protocol Version 4, Src: 192.168.1.10, Dst: 93.184.216.34', items: ['Header Length: 20 bytes', 'Differentiated Services: 0x00', 'Total Length: 52', 'TTL: 64', 'Protocol: TCP (6)'] },
+                { layer: 'Transmission Control Protocol, Src Port: 54321, Dst Port: 80, Seq: 0, Len: 0', items: ['Source Port: 54321', 'Destination Port: 80 (http)', 'Sequence Number: 0 (relative)', 'Flags: 0x002 (SYN)', 'Window: 64240'] }
+              ],
+              hex: '0000   00 26 88 ef 90 12 00 1a 2b 3c 4d 01 08 00 45 00   .&......+<M...E.\n0010   00 34 7a 12 40 00 40 06 b8 1a c0 a8 01 0a 5d b8   .4z.@.@.......].\n0020   d8 22 d4 31 00 50 1a 45 f0 02 00 00 00 00 80 02   .".1.P.E........\n0030   fa f0 3a a1 00 00 02 04 05 b4 01 03 03 08 01 01   ..:.............'
+            },
+            {
+              no: 2, time: '0.024102', src: '93.184.216.34', dst: '192.168.1.10', proto: 'TCP', length: 66,
+              info: '80 → 54321 [SYN, ACK] Seq=0 Ack=1 Win=65535 Len=0',
+              tree: [
+                { layer: 'Ethernet II, Src: 00:26:88:ef:90:12, Dst: 00:1a:2b:3c:4d:01', items: ['Type: IPv4 (0x0800)'] },
+                { layer: 'Internet Protocol Version 4, Src: 93.184.216.34, Dst: 192.168.1.10', items: ['TTL: 56', 'Protocol: TCP (6)'] },
+                { layer: 'Transmission Control Protocol, Src Port: 80, Dst Port: 54321, Seq: 0, Ack: 1', items: ['Flags: 0x012 (SYN, ACK)', 'Acknowledgment: 1'] }
+              ],
+              hex: '0000   00 1a 2b 3c 4d 01 00 26 88 ef 90 12 08 00 45 00   ..+<M..&......E.\n0010   00 34 00 00 40 00 38 06 3a 2d 5d b8 d8 22 c0 a8   .4..@.8.:-].."..\n0020   01 0a 00 50 d4 31 8f 32 11 a0 1a 45 f0 03 80 12   ...P.1.2...E....'
+            },
+            {
+              no: 3, time: '0.024890', src: '192.168.1.10', dst: '93.184.216.34', proto: 'HTTP', length: 154,
+              info: 'GET /index.html HTTP/1.1 (Exp 2 HTTP Analysis)',
+              tree: [
+                { layer: 'Ethernet II & IP Headers', items: ['Src: 192.168.1.10', 'Dst: 93.184.216.34'] },
+                { layer: 'Transmission Control Protocol, Src Port: 54321, Dst Port: 80', items: ['Flags: 0x018 (PSH, ACK)'] },
+                { layer: 'Hypertext Transfer Protocol (HTTP)', items: ['Request Method: GET', 'Request URI: /index.html', 'Request Version: HTTP/1.1', 'Host: www.example.com', 'User-Agent: Mozilla/5.0 (Wireshark Lab)'] }
+              ],
+              hex: '0000   47 45 54 20 2f 69 6e 64 65 78 2e 68 74 6d 6c 20   GET /index.html \n0010   48 54 54 50 2f 31 2e 31 0d 0a 48 6f 73 74 3a 20   HTTP/1.1..Host: \n0020   77 77 77 2e 65 78 61 6d 70 6c 65 2e 63 6f 6d 0d   www.example.com.'
+            },
+            {
+              no: 4, time: '0.048310', src: '93.184.216.34', dst: '192.168.1.10', proto: 'HTTP', length: 342,
+              info: 'HTTP/1.1 200 OK (text/html)',
+              tree: [
+                { layer: 'Hypertext Transfer Protocol (HTTP/1.1 200 OK)', items: ['Response Code: 200 (OK)', 'Content-Type: text/html; charset=UTF-8', 'Content-Length: 1256', 'Last-Modified: Sun, 08 Nov 2026 12:00:00 GMT', 'Cache-Control: max-age=604800'] },
+                { layer: 'Line-based text data: text/html (24 lines)', items: ['<!doctype html>', '<html><head><title>Example Domain</title></head>...'] }
+              ],
+              hex: '0000   48 54 54 50 2f 31 2e 31 20 32 30 30 20 4f 4b 0d   HTTP/1.1 200 OK.\n0010   0a 43 6f 6e 74 65 6e 74 2d 54 79 70 65 3a 20 74   .Content-Type: t\n0020   65 78 74 2f 68 74 6d 6c 0d 0a 0d 0a 3c 21 64 6f   ext/html....<!do'
+            }
+          ];
+        } else if (scenario === 'dns') {
+          this.wsPackets = [
+            {
+              no: 1, time: '0.000000', src: '192.168.1.10', dst: '8.8.8.8', proto: 'DNS', length: 74,
+              info: 'Standard query 0x1a2b A www.scmsgroup.org (UDP port 53)',
+              tree: [
+                { layer: 'Ethernet II, Src: 00:1a:2b:3c:4d:01, Dst: Gateway_Router', items: ['Type: IPv4 (0x0800)'] },
+                { layer: 'Internet Protocol Version 4, Src: 192.168.1.10, Dst: 8.8.8.8', items: ['Protocol: UDP (17)'] },
+                { layer: 'User Datagram Protocol, Src Port: 60234, Dst Port: 53 (dns)', items: ['Length: 40', 'Checksum: 0x9f12'] },
+                { layer: 'Domain Name System (query)', items: ['Transaction ID: 0x1a2b', 'Flags: 0x0100 Standard query (Recursion Desired = 1)', 'Questions: 1', 'Query Name: www.scmsgroup.org', 'Type: A (Host Address) (1)', 'Class: IN (0x0001)'] }
+              ],
+              hex: '0000   1a 2b 01 00 00 01 00 00 00 00 00 00 03 77 77 77   .+...........www\n0010   09 73 63 6d 73 67 72 6f 75 70 03 6f 72 67 00 00   .scmsgroup.org..\n0020   01 00 01                                          ...'
+            },
+            {
+              no: 2, time: '0.018230', src: '8.8.8.8', dst: '192.168.1.10', proto: 'DNS', length: 90,
+              info: 'Standard query response 0x1a2b A www.scmsgroup.org A 103.21.244.0',
+              tree: [
+                { layer: 'User Datagram Protocol, Src Port: 53, Dst Port: 60234', items: ['Length: 56'] },
+                { layer: 'Domain Name System (response)', items: ['Flags: 0x8180 Standard query response, No error', 'Questions: 1', 'Answer RRs: 1', 'Answers: www.scmsgroup.org: type A, class IN, TTL 300, addr 103.21.244.0'] }
+              ],
+              hex: '0000   1a 2b 81 80 00 01 00 01 00 00 00 00 c0 0c 00 01   .+..............\n0010   00 01 00 00 01 2c 00 04 67 15 f4 00               .....,..g...'
+            }
+          ];
+        } else if (scenario === 'smtp') {
+          this.wsPackets = [
+            {
+              no: 1, time: '0.000000', src: 'mail.server.com', dst: '192.168.1.10', proto: 'SMTP', length: 82,
+              info: 'S: 220 mail.server.com ESMTP Postfix Ready (Exp 3 SMTP)',
+              tree: [
+                { layer: 'Simple Mail Transfer Protocol (SMTP)', items: ['Response: 220 mail.server.com ESMTP Service Ready'] }
+              ],
+              hex: '0000   32 32 30 20 6d 61 69 6c 2e 73 65 72 76 65 72 2e   220 mail.server.\n0010   63 6f 6d 20 45 53 4d 54 50 0d 0a                  com ESMTP..'
+            },
+            {
+              no: 2, time: '0.004120', src: '192.168.1.10', dst: 'mail.server.com', proto: 'SMTP', length: 72,
+              info: 'C: HELO client.scms.edu',
+              tree: [
+                { layer: 'Simple Mail Transfer Protocol (SMTP)', items: ['Command: HELO', 'Parameter: client.scms.edu'] }
+              ],
+              hex: '0000   48 45 4c 4f 20 63 6c 69 65 6e 74 2e 73 63 6d 73   HELO client.scms\n0010   2e 65 64 75 0d 0a                                 .edu..'
+            },
+            {
+              no: 3, time: '0.007890', src: '192.168.1.10', dst: 'mail.server.com', proto: 'SMTP', length: 88,
+              info: 'C: MAIL FROM: <alice@scms.edu>',
+              tree: [
+                { layer: 'Simple Mail Transfer Protocol (SMTP)', items: ['Command: MAIL FROM', 'Sender: <alice@scms.edu>'] }
+              ],
+              hex: '0000   4d 41 49 4c 20 46 52 4f 4d 3a 20 3c 61 6c 69 63   MAIL FROM: <alic\n0010   65 40 73 63 6d 73 2e 65 64 75 3e 0d 0a            e@scms.edu>..'
+            }
+          ];
+        } else if (scenario === 'arp') {
+          this.wsPackets = [
+            {
+              no: 1, time: '0.000000', src: '00:1a:2b:3c:4d:01', dst: 'Broadcast (ff:ff:ff:ff:ff:ff)', proto: 'ARP', length: 42,
+              info: 'Who has 192.168.1.1? Tell 192.168.1.10 (Exp 1 Linux & Net Layer Q9)',
+              tree: [
+                { layer: 'Ethernet II, Dst: ff:ff:ff:ff:ff:ff (Broadcast)', items: ['Destination: Broadcast', 'Type: ARP (0x0806)'] },
+                { layer: 'Address Resolution Protocol (request)', items: ['Hardware type: Ethernet (1)', 'Protocol type: IPv4 (0x0800)', 'Hardware size: 6', 'Protocol size: 4', 'Opcode: request (1)', 'Sender MAC: 00:1a:2b:3c:4d:01', 'Sender IP: 192.168.1.10', 'Target IP: 192.168.1.1'] }
+              ],
+              hex: '0000   ff ff ff ff ff ff 00 1a 2b 3c 4d 01 08 06 00 01   ........+<M.....\n0010   08 00 06 04 00 01 00 1a 2b 3c 4d 01 c0 a8 01 0a   ........+<M.....'
+            },
+            {
+              no: 2, time: '0.001150', src: '00:26:88:ef:90:12', dst: '00:1a:2b:3c:4d:01', proto: 'ARP', length: 42,
+              info: '192.168.1.1 is at 00:26:88:ef:90:12 (Unicast reply)',
+              tree: [
+                { layer: 'Address Resolution Protocol (reply)', items: ['Opcode: reply (2)', 'Sender MAC: 00:26:88:ef:90:12', 'Sender IP: 192.168.1.1', 'Target MAC: 00:1a:2b:3c:4d:01', 'Target IP: 192.168.1.10'] }
+              ],
+              hex: '0000   00 1a 2b 3c 4d 01 00 26 88 ef 90 12 08 06 00 01   ..+<M..&........\n0010   08 00 06 04 00 02 00 26 88 ef 90 12 c0 a8 01 01   .......&........'
+            }
+          ];
+        }
+        this.renderWiresharkTable(this.wsPackets);
+        if (this.wsPackets.length > 0) {
+          this.selectWiresharkPacket(0);
+        }
+      },
+
+      filterWireshark() {
+        const query = document.getElementById('ws-filter-input').value.toLowerCase().trim();
+        if (!query) {
+          this.renderWiresharkTable(this.wsPackets);
+          return;
+        }
+        const filtered = this.wsPackets.filter(p => {
+          return p.proto.toLowerCase().includes(query) ||
+                 p.info.toLowerCase().includes(query) ||
+                 p.src.toLowerCase().includes(query) ||
+                 p.dst.toLowerCase().includes(query);
+        });
+        this.renderWiresharkTable(filtered);
+      },
+
+      renderWiresharkTable(packets) {
+        const table = document.getElementById('ws-packet-table');
+        table.innerHTML = '';
+        document.getElementById('ws-packet-count').innerText = `Showing ${packets.length} packets`;
+
+        packets.forEach((p, idx) => {
+          const row = document.createElement('div');
+          const protoColor = p.proto === 'HTTP' ? 'text-emerald-400 bg-emerald-950/20' :
+                             p.proto === 'DNS' ? 'text-teal-400 bg-teal-950/20' :
+                             p.proto === 'SMTP' ? 'text-purple-400 bg-purple-950/20' :
+                             p.proto === 'ARP' ? 'text-amber-400 bg-amber-950/20' : 'text-cyan-400 bg-cyan-950/20';
+
+          row.className = `ws-row grid grid-cols-12 px-3 py-2 cursor-pointer transition hover:bg-slate-800/80 items-center text-[11px] ${protoColor}`;
+          row.id = `ws-row-${p.no}`;
+          row.innerHTML = `
+            <div class="col-span-1 text-slate-500 font-bold">${p.no}</div>
+            <div class="col-span-2 text-slate-400">${p.time}</div>
+            <div class="col-span-3 truncate text-slate-200" title="${p.src}">${p.src}</div>
+            <div class="col-span-3 truncate text-slate-200" title="${p.dst}">${p.dst}</div>
+            <div class="col-span-1 font-bold">${p.proto}</div>
+            <div class="col-span-2 truncate text-slate-300" title="${p.info}">${p.info}</div>
+          `;
+          row.onclick = () => {
+            window.sound.playClick();
+            this.selectWiresharkPacket(p.no - 1);
+          };
+          table.appendChild(row);
+        });
+      },
+
+      selectWiresharkPacket(index) {
+        const p = this.wsPackets[index];
+        if (!p) return;
+        this.currentWsPacket = p;
+
+        document.querySelectorAll('.ws-row').forEach(r => r.classList.remove('bg-sky-900/60', 'ring-1', 'ring-sky-400'));
+        const activeRow = document.getElementById(`ws-row-${p.no}`);
+        if (activeRow) activeRow.classList.add('bg-sky-900/60', 'ring-1', 'ring-sky-400');
+
+        // Render Tree
+        const treeEl = document.getElementById('ws-tree');
+        treeEl.innerHTML = '';
+        p.tree.forEach(layer => {
+          const details = document.createElement('details');
+          details.open = true;
+          details.className = 'group rounded-lg bg-slate-900/80 p-2 border border-slate-800 transition';
+          details.innerHTML = `
+            <summary class="font-bold text-sky-300 cursor-pointer text-xs select-none flex items-center justify-between">
+              <span>▶ ${layer.layer}</span>
+            </summary>
+            <div class="mt-2 pl-4 border-l-2 border-slate-700 space-y-1 text-slate-300 text-[11px]">
+              ${layer.items.map(item => `<div>• ${item}</div>`).join('')}
+            </div>
+          `;
+          treeEl.appendChild(details);
+        });
+
+        // Render Hex
+        document.getElementById('ws-hex').innerText = p.hex;
+      },
+
+      /* ======================================================== */
+      /* NEW SIMULATOR 2: CSMA/CD COLLISION ARENA                 */
+      /* ======================================================== */
+      csmacdState: 'idle',
+      csmacdSingleTransmit() {
+        if (this.csmacdState !== 'idle') return;
+        window.sound.playLaser();
+        this.csmacdState = 'transmitting';
+
+        const sigA = document.getElementById('csmacd-signal-a');
+        const stateA = document.getElementById('csmacd-state-a');
+        const busGlow = document.getElementById('csmacd-bus-glow');
+
+        stateA.innerText = 'TRANSMITTING Frame (64B)';
+        stateA.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-900 text-emerald-300 inline-block font-bold';
+        busGlow.className = 'absolute inset-0 bg-emerald-500/30 transition duration-300';
+
+        sigA.classList.remove('hidden');
+        sigA.style.left = '12%';
+        setTimeout(() => { sigA.style.left = '85%'; }, 50);
+
+        setTimeout(() => {
+          window.sound.playCorrect();
+          stateA.innerText = 'SUCCESS! Frame Delivered';
+          stateA.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-emerald-400 inline-block';
+          sigA.classList.add('hidden');
+          busGlow.className = 'absolute inset-0 bg-cyan-500/20 transition duration-300';
+          this.csmacdState = 'idle';
+        }, 1100);
+      },
+
+      csmacdTriggerCollision() {
+        if (this.csmacdState !== 'idle') return;
+        this.csmacdState = 'colliding';
+        window.sound.playLaser();
+
+        const sigA = document.getElementById('csmacd-signal-a');
+        const sigB = document.getElementById('csmacd-signal-b');
+        const stateA = document.getElementById('csmacd-state-a');
+        const stateB = document.getElementById('csmacd-state-b');
+        const boom = document.getElementById('csmacd-boom');
+        const busGlow = document.getElementById('csmacd-bus-glow');
+
+        stateA.innerText = 'TRANSMITTING';
+        stateA.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-900 text-cyan-200 inline-block';
+        stateB.innerText = 'TRANSMITTING';
+        stateB.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-amber-900 text-amber-200 inline-block';
+
+        sigA.classList.remove('hidden');
+        sigB.classList.remove('hidden');
+        sigA.style.left = '12%';
+        sigB.style.right = '12%';
+
+        setTimeout(() => {
+          sigA.style.left = '48%';
+          sigB.style.right = '48%';
+        }, 50);
+
+        // Boom at mid-cable!
+        setTimeout(() => {
+          window.sound.playBoom();
+          boom.classList.remove('hidden');
+          busGlow.className = 'absolute inset-0 bg-rose-600/40 animate-pulse';
+
+          stateA.innerText = 'COLLISION! Sending Jam Signal';
+          stateA.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-900 text-rose-200 font-bold';
+          stateB.innerText = 'COLLISION! Sending Jam Signal';
+          stateB.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-900 text-rose-200 font-bold';
+
+          // Exponential backoff calculation
+          // Host A chooses k=1 -> r in {0, 1}
+          const rA = Math.floor(Math.random() * 2);
+          const waitA = rA * 51.2;
+          document.getElementById('csmacd-backoff-a').innerText = `Backoff k=1 (r=${rA}): Wait ${waitA.toFixed(1)} µs`;
+
+          // Host B chooses k=1 -> r in {0, 1}
+          const rB = (rA === 0) ? 1 : 0; // Make them differ so one wins
+          const waitB = rB * 51.2;
+          document.getElementById('csmacd-backoff-b').innerText = `Backoff k=1 (r=${rB}): Wait ${waitB.toFixed(1)} µs`;
+        }, 650);
+
+        // Retransmission after backoff
+        setTimeout(() => {
+          boom.classList.add('hidden');
+          sigA.classList.add('hidden');
+          sigB.classList.add('hidden');
+          stateA.innerText = 'Host with shorter backoff RETRANSMITS...';
+          stateB.innerText = 'Backoff waiting...';
+        }, 2200);
+
+        setTimeout(() => {
+          this.csmacdReset();
+        }, 3600);
+      },
+
+      csmacdReset() {
+        this.csmacdState = 'idle';
+        document.getElementById('csmacd-signal-a').classList.add('hidden');
+        document.getElementById('csmacd-signal-b').classList.add('hidden');
+        document.getElementById('csmacd-boom').classList.add('hidden');
+        document.getElementById('csmacd-bus-glow').className = 'absolute inset-0 bg-cyan-500/20 transition duration-300';
+        document.getElementById('csmacd-state-a').innerText = 'IDLE (Listening)';
+        document.getElementById('csmacd-state-a').className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300';
+        document.getElementById('csmacd-state-b').innerText = 'IDLE (Listening)';
+        document.getElementById('csmacd-state-b').className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300';
+        document.getElementById('csmacd-backoff-a').innerText = 'k=0, wait: 0 µs';
+        document.getElementById('csmacd-backoff-b').innerText = 'k=0, wait: 0 µs';
+      },
+
+      /* ======================================================== */
+      /* NEW SIMULATOR 3: 5-LAYER ENCAPSULATION PUZZLE            */
+      /* ======================================================== */
+      encapPieces: [
+        { id: 'eth_hdr', name: 'Ethernet MAC Header (14B: Dst MAC, Src MAC, Type 0x0800)', correctPos: 0, color: 'bg-emerald-950/80 border-emerald-500 text-emerald-300' },
+        { id: 'ip_hdr', name: 'IPv4 Header (20B: Src IP, Dst IP, TTL, Proto 6)', correctPos: 1, color: 'bg-cyan-950/80 border-cyan-500 text-cyan-300' },
+        { id: 'tcp_hdr', name: 'TCP Header (20B: Port 80, Seq Num, ACK, SYN/ACK Flags)', correctPos: 2, color: 'bg-purple-950/80 border-purple-500 text-purple-300' },
+        { id: 'app_data', name: 'Application Payload (HTTP GET /index.html)', correctPos: 3, color: 'bg-amber-950/80 border-amber-500 text-amber-300' },
+        { id: 'eth_crc', name: 'Ethernet FCS / CRC (4B: Frame Check Sequence)', correctPos: 4, color: 'bg-rose-950/80 border-rose-500 text-rose-300' }
+      ],
+      userPlaced: [],
+      initEncap() {
+        this.resetEncap();
+      },
+      resetEncap() {
+        this.userPlaced = [];
+        const dropzone = document.getElementById('encap-dropzone');
+        dropzone.innerHTML = `<div id="encap-placeholder" class="text-slate-500 font-mono text-xs italic m-auto">
+          Click the header tokens below in order: [1st Outer Ethernet MAC] ➔ [2nd IP Header] ➔ [3rd TCP Header] ➔ [4th App Data] ➔ [5th Ethernet CRC Trailer]
+        </div>`;
+        document.getElementById('encap-score').innerText = '0 / 5 Layers Fixed';
+        document.getElementById('encap-feedback').className = 'hidden';
+
+        // Shuffle tokens
+        const shuffled = [...this.encapPieces].sort(() => 0.5 - Math.random());
+        const bank = document.getElementById('encap-tokens');
+        bank.innerHTML = '';
+        shuffled.forEach(piece => {
+          const btn = document.createElement('button');
+          btn.id = `token-${piece.id}`;
+          btn.className = `p-3 rounded-xl border text-xs font-mono font-bold transition hover:scale-105 ${piece.color}`;
+          btn.innerText = piece.name;
+          btn.onclick = () => this.placeEncapPiece(piece);
+          bank.appendChild(btn);
+        });
+      },
+
+      placeEncapPiece(piece) {
+        window.sound.playClick();
+        if (this.userPlaced.find(p => p.id === piece.id)) return;
+
+        this.userPlaced.push(piece);
+        document.getElementById(`token-${piece.id}`).classList.add('opacity-30', 'pointer-events-none');
+
+        const dropzone = document.getElementById('encap-dropzone');
+        const placeholder = document.getElementById('encap-placeholder');
+        if (placeholder) placeholder.remove();
+
+        const tag = document.createElement('div');
+        tag.className = `p-2.5 rounded-lg border text-xs font-mono font-bold flex items-center gap-2 ${piece.color}`;
+        tag.innerHTML = `<span>[Layer ${this.userPlaced.length}] ${piece.name}</span>`;
+        dropzone.appendChild(tag);
+
+        document.getElementById('encap-score').innerText = `${this.userPlaced.length} / 5 Layers Fixed`;
+
+        if (this.userPlaced.length === 5) {
+          this.checkEncapResult();
+        }
+      },
+
+      checkEncapResult() {
+        let allCorrect = true;
+        this.userPlaced.forEach((p, idx) => {
+          if (p.correctPos !== idx) allCorrect = false;
+        });
+
+        const fb = document.getElementById('encap-feedback');
+        fb.classList.remove('hidden');
+
+        if (allCorrect) {
+          window.sound.playLevelUp();
+          confetti({ particleCount: 80, spread: 70 });
+          fb.className = 'p-4 rounded-xl bg-emerald-950/80 border border-emerald-500 text-emerald-300 font-mono text-xs';
+          fb.innerHTML = `<strong>🎉 PERFECT PROTOCOL ENCAPSULATION!</strong><br>
+          You successfully packetized the wire frame: <br>
+          <strong>[Ethernet Header 14B]</strong> wraps <strong>[IP 20B]</strong> which wraps <strong>[TCP 20B]</strong> containing <strong>[HTTP Payload]</strong> protected at the tail by <strong>[CRC 4B]</strong>! (Theory Q2 & Exp 10).`;
+        } else {
+          window.sound.playWrong();
+          fb.className = 'p-4 rounded-xl bg-rose-950/80 border border-rose-500 text-rose-300 font-mono text-xs';
+          fb.innerHTML = `<strong>❌ ORDER ERROR DETECTED!</strong><br>
+          Remember encapsulation order: From lowest layer to highest (L2 MAC ➔ L3 IP ➔ L4 TCP ➔ L7 Data), followed by L2 FCS CRC trailer at the very end. Click Reset to try again!`;
+        }
+      },
+
+      /* ======================================================== */
+      /* NEW SIMULATOR 4: DNS RECURSIVE RESOLVER HIERARCHY       */
+      /* ======================================================== */
+      dnsStepTimer: null,
+      startDNSResolve() {
+        window.sound.playLaser();
+        const domain = document.getElementById('dns-query-domain').value.trim() || 'www.scmsgroup.org';
+        const log = document.getElementById('dns-status-log');
+        const finalIp = document.getElementById('dns-final-ip');
+
+        // Reset elements
+        ['client', 'local', 'root', 'tld', 'auth'].forEach(n => {
+          const el = document.getElementById(`dns-node-${n}`);
+          el.className = 'p-3 rounded-xl bg-slate-900 border border-slate-700 text-center transition';
+        });
+        document.getElementById('dns-res-root').innerText = 'Waiting...';
+        document.getElementById('dns-res-tld').innerText = 'Waiting...';
+        document.getElementById('dns-res-auth').innerText = 'Waiting...';
+        finalIp.innerText = '';
+
+        // Step 1: Client -> Local DNS (Recursive)
+        log.innerText = `Step 1: Client Host checks local cache (miss), sends recursive query for '${domain}' to Local ISP DNS (UDP 53)...`;
+        document.getElementById('dns-node-client').className = 'p-3 rounded-xl bg-blue-950 border border-blue-400 text-center transition';
+        document.getElementById('dns-node-local').className = 'p-3 rounded-xl bg-teal-950 border border-teal-400 text-center transition ring-2 ring-teal-500/50';
+
+        setTimeout(() => {
+          window.sound.playClick();
+          // Step 2: Local DNS -> Root Server
+          log.innerText = `Step 2: Local DNS queries Root Server ('.'). Root responds with referral to '.org' TLD servers.`;
+          document.getElementById('dns-node-root').className = 'p-3 rounded-xl bg-indigo-950 border border-indigo-400 text-center transition ring-2 ring-indigo-500/50';
+          document.getElementById('dns-res-root').innerText = `Referral: TLD .org NS`;
+        }, 1200);
+
+        setTimeout(() => {
+          window.sound.playClick();
+          // Step 3: Local DNS -> TLD Server
+          log.innerText = `Step 3: Local DNS queries '.org' TLD Server. TLD responds with referral to Authoritative NS 'ns1.scmsgroup.org'.`;
+          document.getElementById('dns-node-tld').className = 'p-3 rounded-xl bg-purple-950 border border-purple-400 text-center transition ring-2 ring-purple-500/50';
+          document.getElementById('dns-res-tld').innerText = `Referral: Auth NS`;
+        }, 2400);
+
+        setTimeout(() => {
+          window.sound.playClick();
+          // Step 4: Local DNS -> Authoritative Server
+          log.innerText = `Step 4: Local DNS queries Authoritative Server. Authoritative Server returns Type A Record IP: 103.21.244.0 (TTL 300s)!`;
+          document.getElementById('dns-node-auth').className = 'p-3 rounded-xl bg-emerald-950 border border-emerald-400 text-center transition ring-2 ring-emerald-500/50';
+          document.getElementById('dns-res-auth').innerText = `103.21.244.0 (A Record)`;
+        }, 3600);
+
+        setTimeout(() => {
+          window.sound.playLevelUp();
+          confetti({ particleCount: 50, spread: 60 });
+          log.innerText = `Resolution Complete! Local DNS caches the result and returns 103.21.244.0 to client host. (Exp 4 & App Layer Q6).`;
+          finalIp.innerText = `IP: 103.21.244.0`;
+        }, 4800);
       }
     };
 
