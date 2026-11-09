@@ -1,0 +1,1320 @@
+[
+  {
+    "id": "theory_app",
+    "title": "Internet, Protocol Layering and Application Layer",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is a protocol? What are its key elements?",
+        "answer": "A protocol is a set of rules for communication between entities. Its three key elements are syntax (format of data), semantics (meaning of each field) and timing (when and how fast data is sent)."
+      },
+      {
+        "num": 2,
+        "question": "Explain the TCP/IP protocol layering and the function of each layer.",
+        "answer": "Application (services to the user: HTTP, SMTP, DNS), Transport (process-to-process delivery: TCP, UDP), Network (host-to-host delivery and routing: IP), Data-link (node-to-node delivery within a link: Ethernet, Wi-Fi) and Physical (transmission of bits over the medium)."
+      },
+      {
+        "num": 3,
+        "question": "What is encapsulation and decapsulation?",
+        "answer": "Encapsulation is the addition of a header (and sometimes trailer) at each layer as data moves down the stack at the sender. Decapsulation is the removal of these headers as data moves up the stack at the receiver."
+      },
+      {
+        "num": 4,
+        "question": "Compare the OSI model and the TCP/IP model.",
+        "answer": "OSI has seven layers, and TCP/IP has five (or four). OSI separates the session, presentation and application layers, while TCP/IP combines them in the application layer. OSI is a theoretical reference; TCP/IP is the protocol suite that is actually deployed."
+      },
+      {
+        "num": 5,
+        "question": "What are the differences between the client-server and P2P paradigms?",
+        "answer": "In client-server, the server is centralised, always on, has a fixed address and is a bottleneck and a single point of failure. In P2P, resources are shared by peers, the system is scalable and robust, but management and security are harder."
+      },
+      {
+        "num": 6,
+        "question": "Explain how HTTP works. What is the difference between persistent and non-persistent connections?",
+        "answer": "HTTP is a request-response protocol over TCP port 80. In non-persistent HTTP each object needs a new TCP connection, costing two RTTs plus transmission time per object. In persistent HTTP the connection remains open for several objects (default in HTTP/1.1), saving RTTs."
+      },
+      {
+        "num": 7,
+        "question": "What are the HTTP request and response message formats?",
+        "answer": "Request: request line (method, URL, version), header lines, blank line, optional body. Response: status line (version, status code, phrase), header lines, blank line, body."
+      },
+      {
+        "num": 8,
+        "question": "What are cookies and how do they work?",
+        "answer": "Cookies are small pieces of state data stored by the browser. The server sends a Set-Cookie header with a unique ID in the response, the browser stores it and includes the Cookie header in later requests, allowing the server to track sessions."
+      },
+      {
+        "num": 9,
+        "question": "What is a web cache (proxy server) and how does it improve performance?",
+        "answer": "A proxy server stores copies of recently requested objects. If the object is present, the proxy delivers it without contacting the origin server, reducing response time and traffic. The conditional GET with If-Modified-Since validates the cached copy."
+      },
+      {
+        "num": 10,
+        "question": "Explain FTP. Why is it called an 'out-of-band' protocol?",
+        "answer": "FTP transfers files using two TCP connections: a control connection on port 21 (commands and replies) and a data connection on port 20 (file transfer). Control information is sent separately from the data, hence 'out-of-band'."
+      },
+      {
+        "num": 11,
+        "question": "What is the difference between active and passive FTP?",
+        "answer": "In active mode the server initiates the data connection from port 20 to the client. In passive mode the client initiates both connections, which works better through firewalls and NAT."
+      },
+      {
+        "num": 12,
+        "question": "Explain the architecture of electronic mail.",
+        "answer": "The system consists of user agents (UA), message transfer agents (MTA) and mailboxes. The sender's UA pushes the mail to its mail server using SMTP, the MTAs relay it using SMTP to the recipient's mail server, and the recipient's UA retrieves it using POP3 or IMAP (or HTTP for webmail)."
+      },
+      {
+        "num": 13,
+        "question": "Compare POP3 and IMAP.",
+        "answer": "POP3 downloads messages to the local machine and typically deletes them from the server (stateless across sessions). IMAP keeps messages on the server and allows folders, partial fetches and synchronisation across devices."
+      },
+      {
+        "num": 14,
+        "question": "What is DNS? Explain its hierarchy and how name resolution works.",
+        "answer": "DNS maps domain names to IP addresses using a distributed database. The hierarchy consists of root servers, top-level domain (TLD) servers, and authoritative servers. A local resolver performs recursive or iterative queries and caches the results."
+      },
+      {
+        "num": 15,
+        "question": "What is a peer-to-peer network? Differentiate between structured and unstructured P2P.",
+        "answer": "A network in which peers directly share resources. Unstructured P2P (such as Gnutella) uses flooding to find files, and structured P2P (such as Chord, Kademlia) uses a Distributed Hash Table (DHT) to map keys to peers deterministically for efficient lookup."
+      }
+    ]
+  },
+  {
+    "id": "theory_trans",
+    "title": "Transport Layer and Socket Programming",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What are the services provided by the transport layer?",
+        "answer": "Process-to-process delivery using port numbers, encapsulation/decapsulation, multiplexing and demultiplexing, flow control, error control, congestion control, and connection -oriented or connectionless delivery."
+      },
+      {
+        "num": 2,
+        "question": "What is the difference between multiplexing and demultiplexing?",
+        "answer": "Multiplexing: the sender's transport layer gathers data from several processes and adds headers with port numbers. Demultiplexing: the receiver's transport layer uses the port numbers to deliver segments to the correct process."
+      },
+      {
+        "num": 3,
+        "question": "What is the UDP header format?",
+        "answer": "Four 16-bit fields: source port, destination port, length and checksum (a total of 8 bytes)."
+      },
+      {
+        "num": 4,
+        "question": "What are the applications of UDP?",
+        "answer": "DNS, DHCP, SNMP, TFTP, streaming, VoIP and online games, where low delay is more important than reliability, and query-response applications."
+      },
+      {
+        "num": 5,
+        "question": "What is the TCP segment format? Name the fields.",
+        "answer": "Source port, destination port, sequence number, acknowledgement number, header length, control flags (URG, ACK, PSH, RST, SYN, FIN), window size, checksum, urgent pointer, options and data."
+      },
+      {
+        "num": 6,
+        "question": "Explain TCP connection establishment (three-way handshake).",
+        "answer": "The client sends SYN with initial sequence number x; the server replies with SYN+ACK (its own sequence number y and acknowledgement x+1); the client sends ACK (y+1). Then the connection is established."
+      },
+      {
+        "num": 7,
+        "question": "Explain TCP connection termination.",
+        "answer": "Each direction is closed independently with FIN and ACK (four-way close): FIN from A, ACK from B, FIN from B, ACK from A. The side that closes first goes into TIME_WAIT for 2 x MSL. A half-close is possible."
+      },
+      {
+        "num": 8,
+        "question": "What is the difference between flow control and congestion control?",
+        "answer": "Flow control prevents a sender from overwhelming the receiver, using the receiver window (rwnd). Congestion control prevents the sender from overwhelming the network, using the congestion window (cwnd). The sending window is min(rwnd, cwnd)."
+      },
+      {
+        "num": 9,
+        "question": "Explain TCP congestion control: slow start, congestion avoidance and fast recovery.",
+        "answer": "Slow start: cwnd starts at 1 MSS and doubles every RTT until it reaches ssthresh. Congestion avoidance: cwnd increases by 1 MSS per RTT (additive increase). On a timeout, ssthresh = cwnd/2 and cwnd = 1 (Tahoe/Reno); on 3 duplicate ACKs, fast retransmit and fast recovery set cwnd = ssthresh (Reno) and continue with linear growth."
+      },
+      {
+        "num": 10,
+        "question": "Explain how TCP provides reliable data transfer.",
+        "answer": "By using sequence numbers, cumulative acknowledgements, timers with retransmission on timeout, fast retransmit on three duplicate ACKs, checksums and a sliding window."
+      },
+      {
+        "num": 11,
+        "question": "Explain stop-and-wait, Go-Back-N and Selective Repeat.",
+        "answer": "Stop-and-wait sends one frame and waits for the ACK (window size 1). Go-Back-N uses a sender window up to 2^m - 1 and a receiver window of 1; on an error, all frames from the lost one are resent. Selective Repeat uses windows of 2^(m-1) on both sides and retransmits only the lost frames."
+      },
+      {
+        "num": 12,
+        "question": "What is a socket? Explain the socket address structure.",
+        "answer": "A socket is an endpoint of communication. struct sockaddr_in contains sin_family (AF_INET), sin_port (network byte order) and sin_addr (struct in_addr), and it is cast to struct sockaddr in calls such as bind() and connect()."
+      },
+      {
+        "num": 13,
+        "question": "Explain the elementary TCP socket functions.",
+        "answer": "socket() creates a descriptor; bind() assigns a local address; listen() converts the socket to passive and sets the backlog; accept() returns a connected descriptor; connect() begins the three-way handshake; send()/recv() (or read()/write()) transfer data; close() ends the connection."
+      },
+      {
+        "num": 14,
+        "question": "What are the byte ordering and address conversion functions?",
+        "answer": "htons/htonl/ntohs/ntohl convert between host and network byte order. inet_pton() and inet_ntop() convert between the presentation (text) and numeric forms of IPv4/IPv6 addresses."
+      },
+      {
+        "num": 15,
+        "question": "Explain how a concurrent TCP server is written using fork().",
+        "answer": "The parent calls socket, bind, listen, and loops on accept(); for each connection it calls fork(); the child closes the listening socket, serves the client and exits; the parent closes the connected socket and continues to accept."
+      },
+      {
+        "num": 16,
+        "question": "What are the I/O models in Unix?",
+        "answer": "Blocking, non-blocking, I/O multiplexing (select/poll), signal -driven I/O (SIGIO) and asynchronous I/O (aio_)."
+      },
+      {
+        "num": 17,
+        "question": "Explain the select() function.",
+        "answer": "int select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset, struct timeval *timeout). It waits until any descriptor in the sets is ready or the timeout expires, and it returns the number of ready descriptors. Macros: FD_ZERO, FD_SET, FD_CLR, FD_ISSET."
+      },
+      {
+        "num": 18,
+        "question": "Compare select() and poll().",
+        "answer": "select() uses fixed-size bit sets (limited by FD_SETSIZE, typically 1024) that must be re - initialised for each call. poll() takes an array of struct pollfd (fd, events, revents), has no fixed limit and does not modify the input events. Both scan all descriptors, so O(n); epoll is more scalable."
+      },
+      {
+        "num": 19,
+        "question": "Explain the elementary UDP socket functions and how the UDP client-server differs from TCP.",
+        "answer": "recvfrom() and sendto() are used with the peer address. No listen/accept/connect is needed, and there is no connection state. UDP preserves message boundaries. A connected UDP socket (connect() then send()/recv()) can be used to receive ICMP errors."
+      }
+    ]
+  },
+  {
+    "id": "theory_net",
+    "title": "Network Layer",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is the difference between routing and forwarding?",
+        "answer": "Forwarding is moving a packet from an input port to an output port using the forwarding table. Routing is determining the route (path) from source to destination using routing algorithms and building the forwarding table."
+      },
+      {
+        "num": 2,
+        "question": "Explain the IPv4 datagram format.",
+        "answer": "Version, header length (IHL), type of service/DSCP, total length, identification, flags (DF, MF), fragment offset, TTL, protocol, header checksum, source address, destination address, options and data."
+      },
+      {
+        "num": 3,
+        "question": "Explain IP fragmentation with an example.",
+        "answer": "If a datagram is larger than the MTU of a link, it is divided into fragments, each with a copy of the header, the same identification, the MF flag set for all but the last, and the offset in units of 8 bytes. Example: 4000-byte datagram (3980 bytes of data) over MTU 1500 gives fragments with data 1480, 1480 and 1020 bytes and offsets 0, 185 and 370."
+      },
+      {
+        "num": 4,
+        "question": "Explain classful and classless addressing (CIDR).",
+        "answer": "Classful addressing has classes A to E with fixed prefix lengths (8, 16, 24). CIDR uses a variable- length prefix in the form a.b.c.d/n, which allows flexible allocation and route aggregation."
+      },
+      {
+        "num": 5,
+        "question": "How does subnetting work? Explain VLSM.",
+        "answer": "Subnetting divides a network into smaller networks by borrowing host bits. VLSM allows different subnet masks within the same network so that subnets of different sizes can be allocated efficiently."
+      },
+      {
+        "num": 6,
+        "question": "What is NAT and how does it work?",
+        "answer": "Network Address Translation maps private addresses to one or more public addresses. With port address translation (PAT), a translation table maps (private IP, port) to (public IP, new port) for outgoing packets and reverses for incoming ones."
+      },
+      {
+        "num": 7,
+        "question": "What is DHCP and how does it work?",
+        "answer": "Dynamic Host Configuration Protocol automatically assigns IP address, mask, gateway and DNS. Steps (DORA): Discover, Offer, Request, Acknowledge using UDP ports 67 and 68."
+      },
+      {
+        "num": 8,
+        "question": "What is ICMP? Give its message types.",
+        "answer": "Internet Control Message Protocol reports errors and provides diagnostics. Error -reporting: destination unreachable, source quench (obsolete), time exceeded, parameter problem, redirect. Query: echo request/reply, timestamp. It is used by ping and traceroute."
+      },
+      {
+        "num": 9,
+        "question": "Explain ARP.",
+        "answer": "Address Resolution Protocol maps a known IP address to a MAC address on a LAN. A host broadcasts an ARP request, and the owner of the IP replies with a unicast ARP reply. The mapping is cached."
+      },
+      {
+        "num": 10,
+        "question": "Explain the distance-vector routing algorithm and its problems.",
+        "answer": "Each router maintains a vector of distances to all destinations and exchanges it with neighbours, using the Bellman-Ford equation d_x(y) = min over v of {c(x,v) + d_v(y)}. Problems: slow convergence, routing loops and count-to-infinity, solved by split horizon, poison reverse and hold- down."
+      },
+      {
+        "num": 11,
+        "question": "Explain the link-state routing algorithm.",
+        "answer": "Each router floods link-state advertisements to all routers, builds the complete topology graph and runs Dijkstra's algorithm to compute the shortest-path tree. It converges faster than distance vector but needs more memory and processing."
+      },
+      {
+        "num": 12,
+        "question": "Compare distance-vector and link-state routing.",
+        "answer": "Distance vector: neighbour knowledge only, periodic updates, simple, slow convergence, risk of loops (RIP). Link state: complete topology knowledge, event-triggered floods, fast convergence and loop-free but more resource use (OSPF)."
+      },
+      {
+        "num": 13,
+        "question": "What is an autonomous system? Differentiate intra-domain and inter-domain routing.",
+        "answer": "An AS is a group of networks under a single administration. Intra-domain protocols (RIP, OSPF) run inside an AS. Inter-domain routing (BGP) exchanges reachability between ASes."
+      },
+      {
+        "num": 14,
+        "question": "Explain RIP and OSPF briefly.",
+        "answer": "RIP: distance-vector, hop count metric, max 15 hops, updates every 30 s, UDP port 520. OSPF: link-state, cost metric, areas, Dijkstra, hello/LSA messages, directly over IP (protocol 89), supports authentication and VLSM."
+      },
+      {
+        "num": 15,
+        "question": "Explain BGP.",
+        "answer": "Border Gateway Protocol is the path-vector inter-domain protocol. Peers exchange path attributes (AS-PATH, NEXT-HOP, LOCAL-PREF) over TCP port 179 with eBGP (between ASes) and iBGP (within an AS). Routes are chosen using policies, not just shortest path."
+      },
+      {
+        "num": 16,
+        "question": "What is multicasting? Explain IGMP.",
+        "answer": "Multicasting sends a packet to a group of hosts identified by a class D address. IGMP (Internet Group Management Protocol) lets hosts inform the local router about the groups they wish to join or leave (membership query, report, leave)."
+      },
+      {
+        "num": 17,
+        "question": "What are the limitations of IPv4 and the features of IPv6?",
+        "answer": "IPv4 has 32-bit address exhaustion and no built-in security. IPv6 has 128-bit addresses, a simplified fixed 40-byte header, no fragmentation by routers, extension headers, auto-configuration, built-in IPsec support and no broadcast."
+      },
+      {
+        "num": 18,
+        "question": "Explain the IPv6 header format.",
+        "answer": "Version (4 bits), traffic class (8), flow label (20), payload length (16), next header (8), hop limit (8), source address (128) and destination address (128)."
+      },
+      {
+        "num": 19,
+        "question": "What are the IPv4-to-IPv6 transition strategies?",
+        "answer": "Dual stack, tunnelling (IPv6 packets carried inside IPv4) and header translation (NAT64)."
+      },
+      {
+        "num": 20,
+        "question": "Differentiate between the leaky bucket and token bucket algorithms.",
+        "answer": "Leaky bucket outputs at a constant rate irrespective of burstiness of input, smoothing the traffic. Token bucket allows bursts up to the number of accumulated tokens while keeping the average rate."
+      }
+    ]
+  },
+  {
+    "id": "theory_datalink",
+    "title": "Data-Link Layer, Wireless LANs and Mobile IP",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What are the functions of the data-link layer?",
+        "answer": "Framing, physical addressing, error control, flow control, access control (MAC), and node-to- node delivery. It has two sublayers: Data Link Control (DLC) and Media Access Control (MAC)."
+      },
+      {
+        "num": 2,
+        "question": "Explain bit stuffing with an example.",
+        "answer": "The sender inserts a 0 after every five consecutive 1s in the data, so that the flag 01111110 does not appear in the data. The receiver removes the 0 after five 1s. Example: 0111111011111 becomes 011111010111110."
+      },
+      {
+        "num": 3,
+        "question": "Explain error detection: parity, checksum and CRC.",
+        "answer": "Parity adds one bit to make the number of 1s even/odd (detects odd number of bit errors). The checksum is the 1's complement sum of words. CRC divides the data by a generator polynomial using modulo-2 division and appends the remainder, giving strong burst-error detection."
+      },
+      {
+        "num": 4,
+        "question": "Calculate the CRC for data 1101011011 and generator 10011.",
+        "answer": "Append 4 zeros: 11010110110000, then divide by 10011 using XOR. Remainder = 1110. Transmitted frame = 11010110111110."
+      },
+      {
+        "num": 5,
+        "question": "What are multiple access protocols? Classify them.",
+        "answer": "Protocols to share a broadcast channel: random access (ALOHA, CSMA, CSMA/CD, CSMA/CA), controlled access (reservation, polling, token passing) and channelisation (FDMA, TDMA, CDMA)."
+      },
+      {
+        "num": 6,
+        "question": "Compare pure ALOHA and slotted ALOHA.",
+        "answer": "Pure ALOHA: stations transmit at any time; vulnerable time = 2T; maximum throughput = 1/(2e) = 18.4%. Slotted ALOHA: transmission only at slot starts; vulnerable time = T; maximum throughput = 1/e = 36.8%."
+      },
+      {
+        "num": 7,
+        "question": "Explain CSMA and its persistence methods.",
+        "answer": "Carrier Sense Multiple Access: sense before transmitting. 1-persistent transmits immediately when idle. Non-persistent waits a random time if busy. p-persistent transmits with probability p if idle in slotted channels."
+      },
+      {
+        "num": 8,
+        "question": "Explain CSMA/CD.",
+        "answer": "In Ethernet, a station senses the medium, transmits, and keeps listening. On detecting a collision, it sends a jam signal, aborts and waits a random time using binary exponential backoff. The minimum frame size ensures that collisions are detected: the transmission time >= 2 x propagation delay (512 bits, 64 bytes for 10 Mbps Ethernet)."
+      },
+      {
+        "num": 9,
+        "question": "Explain CSMA/CA and why it is used in wireless LANs.",
+        "answer": "Wireless stations cannot detect collisions while transmitting (the hidden terminal problem). CSMA/CA avoids collisions using interframe spaces (IFS), a random backoff, positive acknowledgement and the optional RTS/CTS exchange with the NAV (network allocation vector) for virtual carrier sensing."
+      },
+      {
+        "num": 10,
+        "question": "What is the hidden terminal and exposed terminal problem?",
+        "answer": "Hidden terminal: two stations that cannot hear each other transmit to a common receiver and collide. Exposed terminal: a station refrains from transmitting because it hears another transmission, although its own transmission would not interfere with the receiver."
+      },
+      {
+        "num": 11,
+        "question": "What is a MAC address and how does it differ from an IP address?",
+        "answer": "A 48-bit physical (link-layer) address burned into the NIC, written in hex, flat and used within a link. An IP address is a logical hierarchical network address used for routing across networks."
+      },
+      {
+        "num": 12,
+        "question": "Explain the Ethernet frame format.",
+        "answer": "Preamble (7 bytes), SFD (1), destination MAC (6), source MAC (6), type/length (2), data (46- 1500) and CRC (4). The minimum frame is 64 bytes and the maximum is 1518 bytes."
+      },
+      {
+        "num": 13,
+        "question": "Differentiate between a hub, a bridge, a switch and a router.",
+        "answer": "Hub: physical-layer repeater, one collision domain. Bridge/switch: data-link layer, learns MAC addresses, separates collision domains, and forwards frames on the basis of the MAC address table. Router: network layer, separates broadcast domains and forwards by IP."
+      },
+      {
+        "num": 14,
+        "question": "Explain the transparent bridge (learning bridge) and spanning tree protocol (STP).",
+        "answer": "A transparent bridge learns source addresses to build a forwarding table, floods frames for unknown destinations and filters the rest. STP removes loops in redundant topologies by electing a root bridge and blocking redundant ports to make a loop-free tree."
+      },
+      {
+        "num": 15,
+        "question": "What is a VLAN?",
+        "answer": "A virtual LAN is a logical grouping of hosts into a broadcast domain independent of their physical location, configured on switches. Frames are tagged (IEEE 802.1Q) so that the trunk link can carry several VLANs."
+      },
+      {
+        "num": 16,
+        "question": "Explain the IEEE 802.11 architecture.",
+        "answer": "The basic service set (BSS) is a group of stations with an optional access point (AP). Infrastructure mode has an AP; ad hoc mode has none. Several BSSs are connected via a distribution system to form an extended service set (ESS). Standards: 802.11a/b/g/n/ac/ax."
+      },
+      {
+        "num": 17,
+        "question": "What is Mobile IP? Explain its entities and operation.",
+        "answer": "Mobile IP lets a host keep its IP address while moving between networks. Entities: mobile node, home agent (HA), foreign agent (FA), home address and care -of address (COA). Phases: agent discovery, registration, and data transfer with tunnelling (HA intercepts the packet, encapsulates it to the COA and the FA/host decapsulates it)."
+      }
+    ]
+  },
+  {
+    "id": "theory_mgmt",
+    "title": "Network Management and Physical Layer",
+    "questions": [
+      {
+        "num": 1,
+        "question": "Explain the SNMP architecture.",
+        "answer": "A manager (NMS) monitors and controls agents that run on managed devices. Each agent holds a MIB (Management Information Base). SMI defines the rules for naming and encoding management objects. Communication is by SNMP messages over UDP (ports 161 and 162)."
+      },
+      {
+        "num": 2,
+        "question": "What are the SNMP PDUs?",
+        "answer": "GetRequest, GetNextRequest, GetBulkRequest (v2), SetRequest, Response, Trap (agent -to- manager notification, port 162) and InformRequest (v2)."
+      },
+      {
+        "num": 3,
+        "question": "What are SMI and MIB?",
+        "answer": "SMI (Structure of Management Information) specifies how objects are named (OBJECT IDENTIFIER tree), their data types and the encoding (using ASN.1 and BER). MIB is the virtual database of managed objects, organised as a tree, for example iso.org.dod.intern et.mgmt.mib-2 (1.3.6.1.2.1)."
+      }
+    ]
+  },
+  {
+    "id": "general_socket",
+    "title": "General Networking and Socket Concepts",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is a port number? Give the ranges.",
+        "answer": "A 16-bit number that identifies a process on a host. Well-known ports are 0-1023, registered ports are 1024-49151, and dynamic/ephemeral ports are 49152-65535 (Linux uses 32768-60999 by default)."
+      },
+      {
+        "num": 2,
+        "question": "Differentiate between TCP and UDP.",
+        "answer": "TCP is connection-oriented, reliable, ordered and does flow and congestion control (SOCK_STREAM). UDP is connectionless, unreliable, has no ordering guarantee and low overhead (SOCK_DGRAM). TCP suits file transfer and web; UDP suits DNS, streaming and time services."
+      },
+      {
+        "num": 3,
+        "question": "Write the sequence of socket calls in a TCP server and a TCP client.",
+        "answer": "Server: socket(), bind(), listen(), accept(), recv()/send(), close(). Client: socket(), connect(), send()/recv(), close()."
+      },
+      {
+        "num": 4,
+        "question": "Write the sequence of socket calls in a UDP server and client.",
+        "answer": "Server: socket(), bind(), recvfrom(), sendto(), close(). Client: socket(), sendto(), recvfrom(), close(). There is no listen(), accept() or connect() in the basic UDP model."
+      },
+      {
+        "num": 5,
+        "question": "What is the purpose of bind()?",
+        "answer": "bind() associates a socket with a local IP address and port number so the operating system knows which incoming packets to deliver to that socket. Servers must bind to a well -known port; clients normally let the OS choose an ephemeral port."
+      },
+      {
+        "num": 6,
+        "question": "What is the difference between a concurrent and an iterative server?",
+        "answer": "An iterative server handles one client at a time. A concurrent server handles several clients simultaneously using fork(), threads, or I/O multiplexing (select/poll/epoll)."
+      }
+    ]
+  },
+  {
+    "id": "exp1",
+    "title": "Experiment 1: Linux Networking Commands",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What does the ifconfig command do? Which command replaces it?",
+        "answer": "ifconfig displays and configures network interfaces (IP address, netmask, MAC address, MTU, RX/TX packet counts). It is deprecated and replaced by the ip command (for example ip addr show)."
+      },
+      {
+        "num": 2,
+        "question": "What does iftop show?",
+        "answer": "iftop shows real-time bandwidth usage on an interface, listing connections between pairs of hosts with their send and receive rates. It works like top but for network traffic."
+      },
+      {
+        "num": 3,
+        "question": "How does ping work? Which protocol does it use?",
+        "answer": "ping sends ICMP Echo Request messages to a destination and waits for ICMP Echo Reply messages. It reports whether the host is reachable, the round-trip time and packet loss."
+      },
+      {
+        "num": 4,
+        "question": "How does traceroute discover the path to a destination?",
+        "answer": "It sends packets with TTL = 1, 2, 3 and so on. Each router decrements the TTL and, when it reaches 0, discards the packet and returns an ICMP Time Exceeded message. This reveals each hop in turn until the destination is reached."
+      },
+      {
+        "num": 5,
+        "question": "What is mtr?",
+        "answer": "mtr (My Traceroute) combines the functions of ping and traceroute. It continuously probes each hop and displays packet loss and latency statistics per hop."
+      },
+      {
+        "num": 6,
+        "question": "What information does netstat give? Give a useful option combination.",
+        "answer": "netstat displays active connections, listening ports, routing tables and interface statistics. For example netstat -tuln lists listening TCP and UDP ports in numeric form; netstat -r shows the routing table. The modern replacement is ss."
+      },
+      {
+        "num": 7,
+        "question": "What is the use of the whois command?",
+        "answer": "whois queries the registration database of a domain or IP block and returns details such as registrar, registrant, creation and expiry dates and name servers."
+      },
+      {
+        "num": 8,
+        "question": "What is nmap and where is it used?",
+        "answer": "nmap is a network scanner used for host discovery, port scanning, service and OS detection. It is used by administrators for security audits. It must only be used on networks you are authorised to scan."
+      },
+      {
+        "num": 9,
+        "question": "What is the difference between nslookup and dig?",
+        "answer": "Both query DNS servers. nslookup is simpler and works interactively; dig gives detailed output of the DNS message sections and is preferred for troubleshooting. nslookup www.example.com returns the IP address of the domain."
+      },
+      {
+        "num": 10,
+        "question": "What is tcpdump? Give an example.",
+        "answer": "tcpdump is a command-line packet analyser that captures packets from an interface. Example: sudo tcpdump -i eth0 port 80 captures HTTP traffic. Output can be saved with -w file.pcap and opened in Wireshark."
+      },
+      {
+        "num": 11,
+        "question": "What is the difference between ip addr and ip route?",
+        "answer": "ip addr shows or configures the addresses assigned to interfaces. ip route shows or modifies the kernel routing table (for example the default gateway)."
+      }
+    ]
+  },
+  {
+    "id": "exp2",
+    "title": "Experiment 2: Wireshark - HTTP Analysis",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is Wireshark?",
+        "answer": "Wireshark is a free, open-source packet analyser used to capture live network traffic and inspect each packet at every protocol layer."
+      },
+      {
+        "num": 2,
+        "question": "What is the difference between a capture filter and a display filter?",
+        "answer": "A capture filter (BPF syntax) restricts which packets are recorded while capturing. A display filter, such as http, hides packets from the view after capturing without deleting them."
+      },
+      {
+        "num": 3,
+        "question": "Why do we clear the browser cache before capturing?",
+        "answer": "So that the browser sends fresh GET requests to the server instead of serving the page from its cache. Otherwise the request may be a conditional GET or may not be sent at all."
+      },
+      {
+        "num": 4,
+        "question": "Which transport protocol and port does HTTP use?",
+        "answer": "HTTP runs over TCP, by default on port 80. HTTPS uses TCP port 443."
+      },
+      {
+        "num": 5,
+        "question": "What is an HTTP GET message? Name other HTTP methods.",
+        "answer": "GET requests a resource from the server. Other methods are POST, HEAD, PUT, DELETE, OPTIONS and PATCH."
+      },
+      {
+        "num": 6,
+        "question": "What are the common HTTP status codes? What does 200 OK mean?",
+        "answer": "1xx informational, 2xx success, 3xx redirection, 4xx client error, 5xx server error. 200 OK means the request succeeded. Others: 301 Moved Permanently, 304 Not Modified, 404 Not Found, 500 Internal Server Error."
+      },
+      {
+        "num": 7,
+        "question": "What is the Last-Modified header and why is it useful?",
+        "answer": "It gives the date and time the resource was last changed on the server. Browsers use it for cache validation with If-Modified-Since, and the server answers 304 Not Modified if nothing has changed."
+      },
+      {
+        "num": 8,
+        "question": "How do you find how long it took from the GET message to the response?",
+        "answer": "Subtract the time value of the GET packet from the time value of the corresponding HTTP response packet in the Time column of Wireshark."
+      },
+      {
+        "num": 9,
+        "question": "What is the difference between HTTP/1.0 and HTTP/1.1?",
+        "answer": "HTTP/1.0 uses non-persistent connections by default (one object per TCP connection). HTTP/1.1 uses persistent connections and supports pipelining and the Host header. HTTP/2 adds multiplexing and header compression."
+      },
+      {
+        "num": 10,
+        "question": "Why can you not see the HTTP content clearly when visiting an HTTPS site?",
+        "answer": "HTTPS encrypts HTTP with TLS, so only the TCP/TLS handshake and encrypted records are visible. That is why this experiment uses a plain HTTP website."
+      },
+      {
+        "num": 11,
+        "question": "What is a stateless protocol? Is HTTP stateless?",
+        "answer": "A stateless protocol does not remember previous requests. HTTP is stateless; cookies and sessions are used to maintain state."
+      }
+    ]
+  },
+  {
+    "id": "exp3",
+    "title": "Experiment 3: Wireshark - SMTP Analysis",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is SMTP and what is its function?",
+        "answer": "Simple Mail Transfer Protocol is the application layer protocol used to send (push) e-mail from a client to a server and between mail servers."
+      },
+      {
+        "num": 2,
+        "question": "Which transport protocol and port numbers does SMTP use?",
+        "answer": "TCP. Port 25 is used for server-to-server relay, 587 for mail submission (STARTTLS) and 465 for SMTP over implicit TLS."
+      },
+      {
+        "num": 3,
+        "question": "Which port number is the SMTP client port and in which range does it lie?",
+        "answer": "The client uses a randomly selected ephemeral (dynamic) port in the range 49152-65535 (or 32768-60999 on Linux). The server side is a well-known port."
+      },
+      {
+        "num": 4,
+        "question": "List the main SMTP commands.",
+        "answer": "HELO/EHLO (identify client), MAIL FROM (sender), RCPT TO (recipient), DATA (start message body, ended by a line with a single dot), RSET, NOOP, QUIT, and STARTTLS (upgrade to encryption)."
+      },
+      {
+        "num": 5,
+        "question": "Explain the SMTP response codes 220, 250, 354 and 221.",
+        "answer": "220: service ready. 250: requested action completed OK. 354: start mail input, end with <CRLF>.<CRLF>. 221: service closing the transmission channel. Also 550 means mailbox unavailable and 421 means service not available."
+      },
+      {
+        "num": 6,
+        "question": "What is IMF?",
+        "answer": "Internet Message Format (RFC 5322) defines the structure of an e-mail message: header lines (From, To, Subject, Date, Message-ID) followed by a blank line and the body. The IMF packet carries the actual message you typed."
+      },
+      {
+        "num": 7,
+        "question": "What is the difference between SMTP, POP3 and IMAP?",
+        "answer": "SMTP is a push protocol used to send mail. POP3 and IMAP are pull protocols used by the client to retrieve mail from the mailbox; POP3 usually downloads and deletes, while IMAP keeps mail on the server and synchronises."
+      },
+      {
+        "num": 8,
+        "question": "What is MIME?",
+        "answer": "Multipurpose Internet Mail Extensions allow e-mail to carry non-ASCII text and attachments such as images and files by defining content types and encodings like base64."
+      }
+    ]
+  },
+  {
+    "id": "exp4",
+    "title": "Experiment 4: Wireshark - DNS Analysis",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is DNS and why is it needed?",
+        "answer": "The Domain Name System translates human -readable domain names (for example www.example.com) into IP addresses. It is a distributed hierarchical database."
+      },
+      {
+        "num": 2,
+        "question": "Why do we flush the DNS cache before capturing? Which commands are used?",
+        "answer": "To force the computer to send a fresh DNS query rather than answer from the local cache. Use ipconfig /flushdns on Windows and systemd-resolve --flush-caches (resolvectl flush-caches) on Linux."
+      },
+      {
+        "num": 3,
+        "question": "Does DNS use UDP or TCP? On which port?",
+        "answer": "Normally UDP port 53 for queries and responses. TCP port 53 is used for zone transfers and for responses too large for UDP (truncated, TC bit set)."
+      },
+      {
+        "num": 4,
+        "question": "What are the source and destination ports of the query and the response?",
+        "answer": "Query: source is a random ephemeral port, destination is 53. Response: source is 53, destination is the ephemeral port of the query."
+      },
+      {
+        "num": 5,
+        "question": "To which IP address is the DNS query sent?",
+        "answer": "To the configured local DNS resolver (often the router or the ISP/public DNS server, such as 8.8.8.8). Check it with cat /etc/resolv.conf or resolvectl status."
+      },
+      {
+        "num": 6,
+        "question": "What is the purpose of the Transaction ID field?",
+        "answer": "It is a 16-bit identifier chosen by the client and copied into the reply so that the client can match a response with the query it sent. The query and response ID numbers are identical."
+      },
+      {
+        "num": 7,
+        "question": "Which flag bits are set only in a response message?",
+        "answer": "QR = 1, AA (authoritative answer), RA (recursion available) and the RCODE (response code, for example 0 = no error, 3 = NXDOMAIN). RD (recursion desired) is set by the client and copied back."
+      },
+      {
+        "num": 8,
+        "question": "How many question, answer, authority and additional records are in a typical query?",
+        "answer": "Question = 1, Answer = 0, Authority = 0, Additional = 0 (0 or 1 if an EDNS OPT record is added)."
+      },
+      {
+        "num": 9,
+        "question": "How many records are in the response?",
+        "answer": "Question = 1 (copied), Answer = one or more (for example a CNAME and A records), Authority = zero or more (NS records), Additional = zero or more (glue records or OPT)."
+      },
+      {
+        "num": 10,
+        "question": "Name the common DNS record types.",
+        "answer": "A (IPv4 address), AAAA (IPv6 address), CNAME (alias), MX (mail exchanger), NS (name server), PTR (reverse lookup), SOA (start of authority), TXT (text)."
+      },
+      {
+        "num": 11,
+        "question": "What is the difference between recursive and iterative queries?",
+        "answer": "In a recursive query the resolver does the entire work and returns the final answer. In an iterative query the server returns a referral to another server and the client keeps asking."
+      }
+    ]
+  },
+  {
+    "id": "exp5",
+    "title": "Experiment 5: TCP Client-Server - Matrix Type",
+    "questions": [
+      {
+        "num": 1,
+        "question": "Why is TCP used in this experiment?",
+        "answer": "The matrix must be delivered completely and in order, and TCP provides reliable, connection- oriented byte-stream delivery."
+      },
+      {
+        "num": 2,
+        "question": "How is the matrix sent from the client to the server?",
+        "answer": "The client sends N first and then N x N integers (for example as a flat array in a single send(), or row by row). The server reads exactly N x N integers. Integers should be converted with htonl()/ntohl() if the machines may differ in endianness."
+      },
+      {
+        "num": 3,
+        "question": "What is the condition for an upper triangular matrix?",
+        "answer": "All elements below the main diagonal are zero (a[i][j] = 0 for i > j)."
+      },
+      {
+        "num": 4,
+        "question": "What is the condition for a lower triangular matrix?",
+        "answer": "All elements above the main diagonal are zero (a[i][j] = 0 for i < j)."
+      },
+      {
+        "num": 5,
+        "question": "What is a diagonal matrix? Which check order should be used?",
+        "answer": "All off-diagonal elements are zero. A diagonal matrix is both upper and lower triangular, so check for diagonal first, then upper, then lower, and otherwise report that it is none of these."
+      },
+      {
+        "num": 6,
+        "question": "Why is TCP called a byte stream and why does it matter here?",
+        "answer": "TCP does not preserve message boundaries. One send() may be received by several recv() calls, so the receiver must loop until it has received the expected number of bytes."
+      },
+      {
+        "num": 7,
+        "question": "What does listen()'s backlog parameter mean?",
+        "answer": "It is the maximum length of the queue of pending, fully-established connections waiting to be accepted."
+      },
+      {
+        "num": 8,
+        "question": "What does accept() return?",
+        "answer": "A new socket descriptor dedicated to the connected client. The original listening socket continues to listen for more connections."
+      },
+      {
+        "num": 9,
+        "question": "What is SO_REUSEADDR?",
+        "answer": "A socket option that lets the server bind to a port that is still in the TIME_WAIT state, avoiding the 'Address already in use' error when restarting."
+      }
+    ]
+  },
+  {
+    "id": "exp6",
+    "title": "Experiment 6: UDP Client-Server - Abbreviation Translator",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is the difference between using sendto()/recvfrom() and send()/recv()?",
+        "answer": "sendto() and recvfrom() carry the peer address with every datagram, which is needed in an unconnected UDP socket. send() and recv() require a connected socket."
+      },
+      {
+        "num": 2,
+        "question": "Why is no connection established in UDP?",
+        "answer": "UDP is connectionless. Each datagram is independent and there is no handshake, so the server learns the client's address from recvfrom()."
+      },
+      {
+        "num": 3,
+        "question": "How does the server know where to send the reply?",
+        "answer": "recvfrom() fills a sockaddr structure with the client's IP address and port, which is passed to sendto() when replying."
+      },
+      {
+        "num": 4,
+        "question": "How would you translate the abbreviations in the received sentence?",
+        "answer": "Split the sentence into words (strtok() or manual parsing), compare each word with a lookup table of abbreviations, replace matches with the full form and join the words again. Punctuation attached to a word (for example 'atm,') must be handled."
+      },
+      {
+        "num": 5,
+        "question": "What happens if a UDP datagram is lost?",
+        "answer": "UDP does not retransmit, so the client would wait forever on recvfrom(). Use a timeout (SO_RCVTIMEO or select()) and retry at the application level."
+      },
+      {
+        "num": 6,
+        "question": "Does UDP guarantee ordering or delivery?",
+        "answer": "No. Datagrams may be lost, duplicated or reordered."
+      }
+    ]
+  },
+  {
+    "id": "exp7",
+    "title": "Experiment 7: Multi-user Chat Server using TCP",
+    "questions": [
+      {
+        "num": 1,
+        "question": "How can a chat server handle multiple clients?",
+        "answer": "Using a process per client (fork()), a thread per client (pthread), or I/O multiplexing with select(), poll() or epoll() in a single process."
+      },
+      {
+        "num": 2,
+        "question": "Explain how select() works.",
+        "answer": "select() monitors a set of file descriptors and blocks until one or more are ready for reading, writing or have an exception. The server keeps the listening socket and all client sockets in an fd_set; when the listening socket is ready it calls accept(), and when a client socket is ready it reads the message."
+      },
+      {
+        "num": 3,
+        "question": "How is a message broadcast to all users?",
+        "answer": "The server keeps an array or list of all connected client sockets. On receiving a message from one client, it loops over the list and calls send() to every other client."
+      },
+      {
+        "num": 4,
+        "question": "What synchronisation issues arise in a threaded chat server?",
+        "answer": "Shared data such as the client list can be modified by many threads simultaneously, causing race conditions. Protect it with a mutex (pthread_mutex_lock/unlock)."
+      },
+      {
+        "num": 5,
+        "question": "How do you detect that a client has disconnected?",
+        "answer": "recv() returns 0 on an orderly close (or -1 on error). The server then closes that socket and removes it from the client list."
+      },
+      {
+        "num": 6,
+        "question": "What is the difference between a chat server using TCP and one using UDP?",
+        "answer": "TCP gives reliable ordered delivery and detects disconnects, so it is preferred for chat. With UDP the server would need to track clients itself and messages may be lost."
+      },
+      {
+        "num": 7,
+        "question": "What are threads and how are they different from processes?",
+        "answer": "Threads share the same address space of a process, so they are lightweight and communicate easily, while processes have separate address spaces and use IPC or copies of data."
+      },
+      {
+        "num": 8,
+        "question": "What is a zombie process and how do you avoid it in a fork-based server?",
+        "answer": "A child that has terminated but whose exit status has not been collected. Avoid with wait()/waitpid() in a SIGCHLD handler or by ignoring SIGCHLD."
+      }
+    ]
+  },
+  {
+    "id": "exp8",
+    "title": "Experiment 8: Concurrent UDP Time Server",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is the function of a time server?",
+        "answer": "It returns the current system time of the remote machine to a requesting client, which displays it."
+      },
+      {
+        "num": 2,
+        "question": "Which functions are used to obtain and format time in C?",
+        "answer": "time() gets the seconds since the Unix epoch, localtime() or gmtime() converts them to a broken- down structure, ctime() or strftime() converts them to a readable string."
+      },
+      {
+        "num": 3,
+        "question": "How is concurrency achieved in a UDP server?",
+        "answer": "After recvfrom() receives a request the server calls fork() (or creates a thread) and the child processes the request and replies with sendto(), while the parent goes back to recvfrom() for the next request."
+      },
+      {
+        "num": 4,
+        "question": "Which standard protocol is similar to this experiment? Which port does it use?",
+        "answer": "The Daytime protocol (RFC 867) on port 13 and the Time protocol (RFC 868) on port 37. Modern systems use NTP on UDP port 123."
+      }
+    ]
+  },
+  {
+    "id": "exp9",
+    "title": "Experiment 9: Concurrent File Server",
+    "questions": [
+      {
+        "num": 1,
+        "question": "Why does the server use fork() for each client?",
+        "answer": "So that the parent can keep accepting new connections while each child process serves one client, allowing simultaneous file transfers."
+      },
+      {
+        "num": 2,
+        "question": "How does the server send its PID?",
+        "answer": "It calls getpid() in the child process and sends the value to the client along with the file contents or the error message, for example using sprintf() to build the message."
+      },
+      {
+        "num": 3,
+        "question": "What is the difference between getpid() and getppid()?",
+        "answer": "getpid() returns the process ID of the calling process and getppid() returns the ID of its parent."
+      },
+      {
+        "num": 4,
+        "question": "How does the server check if the requested file exists?",
+        "answer": "By trying to open it with open() or fopen(); if it returns -1 or NULL (errno = ENOENT), the file does not exist. access() or stat() can also be used."
+      },
+      {
+        "num": 5,
+        "question": "How is a large file sent over a TCP socket?",
+        "answer": "Read it in chunks (for example 1024 bytes) using read()/fread() into a buffer and send each chunk with send() in a loop until end of file. The receiver loops on recv() until the connection is closed or a length is reached."
+      },
+      {
+        "num": 6,
+        "question": "What should the parent do with the connected socket after fork()?",
+        "answer": "The parent closes the connected socket (it only needs the listening socket) and the child closes the listening socket. Otherwise the connection will not be closed properly."
+      },
+      {
+        "num": 7,
+        "question": "How can zombies be avoided?",
+        "answer": "Use a SIGCHLD handler that calls waitpid(-1, NULL, WNOHANG) in a loop."
+      },
+      {
+        "num": 8,
+        "question": "What is the difference between a process and a program?",
+        "answer": "A program is a passive file on disk; a process is an executing instance of a program with its own PID, memory and resources."
+      }
+    ]
+  },
+  {
+    "id": "exp10",
+    "title": "Experiment 10: Packet Capturing using Raw Sockets",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is a raw socket?",
+        "answer": "A socket that gives direct access to the underlying protocol headers, bypassing the transport layer processing of the kernel. It is created with SOCK_RAW."
+      },
+      {
+        "num": 2,
+        "question": "Which call creates a raw socket that captures all packets on Linux?",
+        "answer": "socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL)). This receives complete Ethernet frames. Alternatively socket(AF_INET, SOCK_RAW, IPPROTO_TCP) receives only TCP packets with the IP header."
+      },
+      {
+        "num": 3,
+        "question": "Why are root privileges required?",
+        "answer": "Raw sockets allow reading and forging packets, which is a security risk. Linux requires root or the CAP_NET_RAW capability."
+      },
+      {
+        "num": 4,
+        "question": "What is promiscuous mode?",
+        "answer": "A mode in which the network interface accepts all frames on the wire and not just those addressed to its own MAC address. It is set with ioctl() (SIOCSIFFLAGS with IFF_PROMISC) or via libpcap."
+      },
+      {
+        "num": 5,
+        "question": "How do you parse the captured packet?",
+        "answer": "Cast the buffer to struct ethhdr for the Ethernet header, then to struct iphdr (after 14 bytes) for the IP header, and then to struct tcphdr, udphdr or icmphdr depending on the protocol field. Print the source/destination MAC, IP and ports."
+      },
+      {
+        "num": 6,
+        "question": "How do you find the length of the IP header?",
+        "answer": "The IHL field (4 bits) gives the header length in 32-bit words. Header length in bytes = IHL x 4 (minimum 20)."
+      },
+      {
+        "num": 7,
+        "question": "What protocol numbers identify ICMP, TCP and UDP in the IP header?",
+        "answer": "ICMP = 1, TCP = 6, UDP = 17."
+      },
+      {
+        "num": 8,
+        "question": "What is the EtherType field?",
+        "answer": "A 2-byte field in the Ethernet header identifying the upper-layer protocol, for example 0x0800 = IPv4, 0x0806 = ARP, 0x86DD = IPv6."
+      }
+    ]
+  },
+  {
+    "id": "exp11",
+    "title": "Experiment 11: Familiarising Router Commands (Cisco Packet Tracer)",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What are the different Cisco IOS modes and their prompts?",
+        "answer": "User EXEC mode: Router>. Privileged EXEC mode: Router#. Global configuration mode: Router(config)#. Interface configuration mode: Router(config-if)#. Others: line (config-line)# and router (config-router)#."
+      },
+      {
+        "num": 2,
+        "question": "How do you switch from user mode to privileged mode and to configuration mode?",
+        "answer": "Type enable to enter privileged mode, then configure terminal (conf t) for global configuration mode. Use exit or end/Ctrl+Z to go back."
+      },
+      {
+        "num": 3,
+        "question": "Which command displays the router's model, IOS version, memory and interfaces?",
+        "answer": "show version. It shows the IOS image, uptime, RAM, NVRAM and flash size, number of interfaces and configuration register."
+      },
+      {
+        "num": 4,
+        "question": "What is the difference between running-config and startup-config?",
+        "answer": "running-config is the active configuration stored in RAM and is lost on reload. startup-config is stored in NVRAM and is loaded at boot."
+      },
+      {
+        "num": 5,
+        "question": "How do you save the running configuration?",
+        "answer": "copy running-config startup-config (or write memory / wr)."
+      },
+      {
+        "num": 6,
+        "question": "Which command shows the routing table?",
+        "answer": "show ip route. Codes such as C (connected), S (static), R (RIP) and O (OSPF) indicate how each route was learned."
+      },
+      {
+        "num": 7,
+        "question": "Which command shows the active routing protocols?",
+        "answer": "show ip protocols. It shows the protocol, timers, networks advertised, neighbours and administrative distance."
+      },
+      {
+        "num": 8,
+        "question": "What is the difference between show interfaces and show ip interface brief?",
+        "answer": "show interfaces gives detailed statistics for each interface (MTU, bandwidth, errors, counters, encapsulation). show ip interface brief gives a one-line summary with the IP address and status (up/down) of each interface."
+      },
+      {
+        "num": 9,
+        "question": "How do you find whether a serial interface is DTE or DCE?",
+        "answer": "Use show controllers serial 0 (for example). The output states DCE cable or DTE cable. The DCE end provides the clock."
+      },
+      {
+        "num": 10,
+        "question": "How do you configure a serial interface with an IP address and clock rate?",
+        "answer": "Router(config)# interface serial 0 / Router(config-if)# ip address 192.168.1.1 255.255.255.0 / clock rate 64000 (on the DCE end only) / no shutdown."
+      },
+      {
+        "num": 11,
+        "question": "Why is the no shutdown command needed?",
+        "answer": "Router interfaces are administratively down by default. no shutdown enables the interface."
+      },
+      {
+        "num": 12,
+        "question": "What are the different memory types in a Cisco router?",
+        "answer": "ROM (bootstrap/POST), Flash (IOS image), RAM (running config, routing tables, ARP cache), NVRAM (startup config)."
+      }
+    ]
+  },
+  {
+    "id": "exp12",
+    "title": "Experiment 12: Static Routing",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is static routing?",
+        "answer": "Routes are configured manually by the administrator and do not change automatically when the topology changes."
+      },
+      {
+        "num": 2,
+        "question": "What is the syntax of a static route command?",
+        "answer": "ip route <destination-network> <subnet-mask> <next-hop-IP | exit-interface>, for example ip route 172.16.30.0 255.255.255.0 172.16.20.2."
+      },
+      {
+        "num": 3,
+        "question": "What are the advantages and disadvantages of static routing?",
+        "answer": "Advantages: no protocol overhead, secure, predictable, simple in small networks. Disadvantages: no automatic adaptation to failures and hard to manage in large networks."
+      },
+      {
+        "num": 4,
+        "question": "What is administrative distance? What is the value for static routes?",
+        "answer": "Administrative distance (AD) measures the trustworthiness of a route source. Lower is better. Connected = 0, static = 1, EIGRP = 90, OSPF = 110, RIP = 120."
+      },
+      {
+        "num": 5,
+        "question": "What is a default route and how is it configured?",
+        "answer": "A route that matches all destinations not in the routing table: ip route 0.0.0.0 0.0.0.0 <next-hop>. It is used at stub networks."
+      },
+      {
+        "num": 6,
+        "question": "What is a floating static route?",
+        "answer": "A static route configured with a higher administrative distance (for example ip route ... 200) so that it is used only when the primary (dynamic) route fails."
+      },
+      {
+        "num": 7,
+        "question": "Why must routes be configured in both directions?",
+        "answer": "For ping to work, the ICMP echo request must reach the destination and the echo reply must find its way back. If the return route is missing, the ping fails."
+      },
+      {
+        "num": 8,
+        "question": "How do you verify that static routing works?",
+        "answer": "show ip route (S entries) and ping from a host or router to remote networks; traceroute (tracert) can confirm the path."
+      },
+      {
+        "num": 9,
+        "question": "What does a ping result of '!!!!!' or '.....' or 'U.U.U' mean on a router?",
+        "answer": "! = success, . = timeout, U = destination unreachable."
+      }
+    ]
+  },
+  {
+    "id": "exp13",
+    "title": "Experiment 13: RIPv2 Routing",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is RIP? Which type of routing algorithm does it use?",
+        "answer": "Routing Information Protocol is a distance-vector protocol that uses the Bellman-Ford algorithm and hop count as its metric."
+      },
+      {
+        "num": 2,
+        "question": "What is the maximum hop count in RIP?",
+        "answer": "15. A hop count of 16 means the network is unreachable."
+      },
+      {
+        "num": 3,
+        "question": "How often are RIP updates sent?",
+        "answer": "Every 30 seconds by default. Invalid timer = 180 s, hold-down = 180 s, flush = 240 s."
+      },
+      {
+        "num": 4,
+        "question": "What are the differences between RIPv1 and RIPv2?",
+        "answer": "RIPv1 is classful, sends broadcasts (255.255.255.255) and has no authentication. RIPv2 is classless (carries subnet masks and supports VLSM/CIDR), uses multicast 224.0.0.9, and supports authentication and manual summarisation."
+      },
+      {
+        "num": 5,
+        "question": "Write the commands to configure RIPv2.",
+        "answer": "Router(config)# router rip / Router(config-router)# version 2 / network 172.16.0.0 / no auto- summary. The network command lists the classful networks of the directly connected interfaces to advertise."
+      },
+      {
+        "num": 6,
+        "question": "Why is no auto-summary used?",
+        "answer": "By default RIPv2 summarises routes at classful boundaries, which breaks discontiguous subnets. no auto-summary disables this."
+      },
+      {
+        "num": 7,
+        "question": "Which transport protocol and port does RIP use?",
+        "answer": "UDP port 520."
+      },
+      {
+        "num": 8,
+        "question": "Explain split horizon, route poisoning and hold-down.",
+        "answer": "Split horizon: a route is not advertised back on the interface from which it was learned. Route poisoning: a failed route is advertised with metric 16. Hold-down: ignore updates about a route for a period after it is marked unreachable. All prevent routing loops."
+      },
+      {
+        "num": 9,
+        "question": "What is the count-to-infinity problem?",
+        "answer": "In distance-vector protocols, routers gradually increase the metric to an unreachable network through mutual updates. RIP limits this problem by making 16 the infinity value."
+      },
+      {
+        "num": 10,
+        "question": "What is convergence?",
+        "answer": "The state when all routers have consistent routing information after a change."
+      },
+      {
+        "num": 11,
+        "question": "How can you verify RIP operation?",
+        "answer": "show ip route (R entries), show ip protocols, show ip rip database and debug ip rip; also ping between all hosts."
+      }
+    ]
+  },
+  {
+    "id": "exp14",
+    "title": "Experiment 14: OSPF Routing",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is OSPF? What type of protocol is it?",
+        "answer": "Open Shortest Path First is a link-state interior gateway protocol. Each router builds a link-state database of the whole area and runs Dijkstra's SPF algorithm to calculate best paths."
+      },
+      {
+        "num": 2,
+        "question": "What is the metric of OSPF?",
+        "answer": "Cost, calculated as reference bandwidth divided by interface bandwidth (default reference 100 Mbps). For example a 10 Mbps link has cost 10."
+      },
+      {
+        "num": 3,
+        "question": "Write the commands to configure OSPF.",
+        "answer": "Router(config)# router ospf 1 / Router(config-router)# network 172.16.10.0 0.0.0.255 area 0. The network statement uses a wildcard mask and an area ID."
+      },
+      {
+        "num": 4,
+        "question": "What is the difference between wildcard mask and subnet mask?",
+        "answer": "A wildcard mask is the inverse of a subnet mask: 0 bits must match and 1 bits are ignored. For /24, the subnet mask is 255.255.255.0 and the wildcard is 0.0.0.255."
+      },
+      {
+        "num": 5,
+        "question": "What is an OSPF area? What is area 0?",
+        "answer": "An area is a logical group of routers that share the same link-state database, which reduces SPF calculation and LSA flooding. Area 0 is the backbone area, and all other areas must connect to it."
+      },
+      {
+        "num": 6,
+        "question": "What is the Router ID and how is it chosen?",
+        "answer": "A 32-bit identifier of the OSPF router. It is chosen from the manually configured router -id, otherwise the highest loopback IP, otherwise the highest active interface IP."
+      },
+      {
+        "num": 7,
+        "question": "What are DR and BDR?",
+        "answer": "On multi-access networks like Ethernet, a Designated Router and Backup Designated Router are elected to reduce adjacency and LSA flooding. Others form full adjacency only with the DR and BDR."
+      },
+      {
+        "num": 8,
+        "question": "What are the hello and dead intervals?",
+        "answer": "Hello 10 seconds and dead 40 seconds on broadcast and point-to-point networks (30 and 120 seconds on NBMA). They must match between neighbours."
+      },
+      {
+        "num": 9,
+        "question": "Name the OSPF neighbour states.",
+        "answer": "Down, Init, 2-Way, ExStart, Exchange, Loading, Full."
+      },
+      {
+        "num": 10,
+        "question": "What are the advantages of OSPF over RIP?",
+        "answer": "Faster convergence, no hop-count limit, classless with VLSM support, uses bandwidth-based cost, scalable due to areas, and sends triggered updates only on change."
+      },
+      {
+        "num": 11,
+        "question": "How do you verify OSPF?",
+        "answer": "show ip ospf neighbor, show ip ospf interface, show ip route (O entries), show ip protocols, and ping."
+      }
+    ]
+  },
+  {
+    "id": "exp15",
+    "title": "Experiment 15: Access Control List - Restricting Access to a Network",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is an ACL?",
+        "answer": "An Access Control List is an ordered list of permit and deny statements applied to a router interface to filter packets based on address, protocol or port."
+      },
+      {
+        "num": 2,
+        "question": "What are the types of ACLs?",
+        "answer": "Standard ACLs (numbers 1-99 and 1300-1999) filter only by source IP address. Extended ACLs (100-199 and 2000-2699) filter by source, destination, protocol and port. Named ACLs may be either type."
+      },
+      {
+        "num": 3,
+        "question": "How would you allow only Host_B to reach network 172.16.10.0?",
+        "answer": "Create a standard ACL, for example access-list 10 permit host <IP of Host_B>, and apply it on the router interface connected to 172.16.10.0 in the outbound direction: interface f0/0 / ip access-group 10 out. Everything else is dropped by the implicit deny."
+      },
+      {
+        "num": 4,
+        "question": "What is the implicit deny?",
+        "answer": "Every ACL ends with an invisible 'deny any' statement. Any packet that does not match a permit statement is dropped."
+      },
+      {
+        "num": 5,
+        "question": "Where should standard and extended ACLs be placed?",
+        "answer": "Standard ACLs close to the destination (because they only check the source). Extended ACLs close to the source (to stop unwanted traffic early)."
+      },
+      {
+        "num": 6,
+        "question": "What is the effect of the order of statements in an ACL?",
+        "answer": "The router checks from top to bottom and stops at the first match, so more specific statements must be placed before general ones."
+      },
+      {
+        "num": 7,
+        "question": "What is the difference between inbound and outbound ACL?",
+        "answer": "Inbound filters packets as they enter the interface, before routing. Outbound filters packets after routing, as they leave the interface."
+      },
+      {
+        "num": 8,
+        "question": "What will be the result of pinging Host_A from Lab_B and Lab_C?",
+        "answer": "The ping fails (Destination unreachable, shown as U on a router, or 'Destination host unreachable' on a PC) because they are blocked by the ACL. The ping from Host_B succeeds."
+      },
+      {
+        "num": 9,
+        "question": "Which commands verify an ACL?",
+        "answer": "show access-lists (with hit counters), show ip interface (which shows applied ACLs) and show running-config."
+      },
+      {
+        "num": 10,
+        "question": "How do you remove an ACL?",
+        "answer": "First remove it from the interface with no ip access-group 10 out, then delete it with no access- list 10."
+      }
+    ]
+  },
+  {
+    "id": "exp16",
+    "title": "Experiment 16: Subnetting and Blocking a Website using ACL",
+    "questions": [
+      {
+        "num": 1,
+        "question": "To which class does the address 140.80.0.0 belong and what is its default mask?",
+        "answer": "Class B (first octet 128-191), default mask 255.255.0.0 (/16)."
+      },
+      {
+        "num": 2,
+        "question": "How many bits are borrowed for 20 subnets and what is the new mask?",
+        "answer": "2^5 = 32 >= 20, so 5 bits are borrowed. The new mask is /21 = 255.255.248.0 and each subnet has 2^11 - 2 = 2046 usable hosts. The block size is 8 in the third octet."
+      },
+      {
+        "num": 3,
+        "question": "What are the first four subnets? Where is CCF?",
+        "answer": "Subnet 1: 140.80.0.0, subnet 2: 140.80.8.0, subnet 3: 140.80.16.0, subnet 4: 140.80.24.0/21 (host range 140.80.24.1 - 140.80.31.254, broadcast 140.80.31.255). CCF is in 140.80.24.0/21."
+      },
+      {
+        "num": 4,
+        "question": "What is the 16th subnet?",
+        "answer": "(16 - 1) x 8 = 120, so 140.80.120.0/21 with hosts 140.80.120.1 - 140.80.127.254 and broadcast 140.80.127.255."
+      },
+      {
+        "num": 5,
+        "question": "What is the server's IP address?",
+        "answer": "Taking the 7th usable host address in the 16th subnet, it is 140.80.120.7. If the address count starts at the network address (0th = network), the 7th address would be 140.80.120.6. State the assumption clearly."
+      },
+      {
+        "num": 6,
+        "question": "Which type of ACL is required and why?",
+        "answer": "An extended ACL, because the requirement depends on the source subnet, destination host and the TCP port (application), which a standard ACL cannot match."
+      },
+      {
+        "num": 7,
+        "question": "Write the ACL to block the website access from CCF only.",
+        "answer": "access-list 101 deny tcp 140.80.24.0 0.0.7.255 host 140.80.120.7 eq 80 / (also eq 443 if HTTPS is used) / access-list 101 permit ip any any. Apply it inbound on the router interface facing CCF: ip access-group 101 in."
+      },
+      {
+        "num": 8,
+        "question": "Why is 'permit ip any any' needed?",
+        "answer": "Because of the implicit deny at the end of every ACL. Without it all other traffic, including other services from the server, would also be blocked."
+      },
+      {
+        "num": 9,
+        "question": "What is the wildcard mask for /21?",
+        "answer": "0.0.7.255 (inverse of 255.255.248.0)."
+      }
+    ]
+  },
+  {
+    "id": "exp17",
+    "title": "Experiment 17: IPv6 Network with RIPng",
+    "questions": [
+      {
+        "num": 1,
+        "question": "What is the size of an IPv6 address? How is it written?",
+        "answer": "128 bits, written as eight groups of four hexadecimal digits separated by colons, for example 2001:0DB8:1111:0001:0000:0000:0000:0001."
+      },
+      {
+        "num": 2,
+        "question": "How can an IPv6 address be shortened?",
+        "answer": "Leading zeros in a group can be dropped and one consecutive run of all -zero groups can be replaced by :: (only once). For example 2001:DB8:1111:1::1."
+      },
+      {
+        "num": 3,
+        "question": "What is the meaning of 2001:DB8:1111:1::/64?",
+        "answer": "It is the network prefix: the first 64 bits are the network/subnet portion (2001:DB8:1111 is the site prefix and 1 is the subnet ID) and the remaining 64 bits are the interface ID."
+      },
+      {
+        "num": 4,
+        "question": "What is RIPng?",
+        "answer": "RIP next generation is the IPv6 version of RIP. It is a distance-vector protocol using hop count, 15 as the maximum, updates every 30 seconds, UDP port 521 and multicast address FF02::9."
+      },
+      {
+        "num": 5,
+        "question": "Write the commands to enable RIPng on a router.",
+        "answer": "Router(config)# ipv6 unicast-routing / Router(config)# interface g0/0 / ipv6 address 2001:DB8:1111:1::1/64 / ipv6 rip MYRIP enable / no shutdown. The same ipv6 rip <name> enable is applied to each interface (no network command is used)."
+      },
+      {
+        "num": 6,
+        "question": "What is the difference between RIPv2 and RIPng in configuration?",
+        "answer": "RIPv2 uses router rip and network commands under router mode. RIPng enables RIP per interface with ipv6 rip <name> enable, and ipv6 unicast-routing must be enabled globally."
+      },
+      {
+        "num": 7,
+        "question": "Why is ipv6 unicast-routing needed?",
+        "answer": "IPv6 routing is disabled by default on Cisco routers. This command enables forwarding of IPv6 packets."
+      },
+      {
+        "num": 8,
+        "question": "What is a link-local address?",
+        "answer": "An address of the form FE80::/10 that is automatically generated on each IPv6-enabled interface. It is valid only on the local link and is used for neighbour discovery and as the next hop by routing protocols."
+      },
+      {
+        "num": 9,
+        "question": "How does IPv6 replace ARP?",
+        "answer": "With Neighbor Discovery Protocol (NDP) using ICMPv6 Neighbor Solicitation and Advertisement messages."
+      },
+      {
+        "num": 10,
+        "question": "How do you verify IPv6 routing?",
+        "answer": "show ipv6 route (R entries), show ipv6 rip database, show ipv6 interface brief and ping ipv6 <address>."
+      }
+    ]
+  }
+]
